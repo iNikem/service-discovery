@@ -7,7 +7,9 @@ package uni.tartu.discovery
  **/
 
 class Algorithm {
-    public void create() {
-        printf "discover me!"
+    public static void create(List records) {
+        for (record in records) {
+            println "$record.serviceName"
+        }
     }
 }

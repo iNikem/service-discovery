@@ -2,6 +2,8 @@ package uni.tartu
 
 import uni.tartu.discovery.Algorithm
 
+import static uni.tartu.parser.Parser.parse
+
 /**
  * author: lkokhreidze
  * date: 2/18/16
@@ -10,7 +12,7 @@ import uni.tartu.discovery.Algorithm
 
 class Main {
     public static void main(String[] args) {
-        new Algorithm()
-                .create()
+        URL csv = Main.class.getClassLoader().getResource("test-data-1.csv")
+        Algorithm.create(parse(new File(csv.toURI())))
     }
 }
