@@ -17,7 +17,7 @@ class Algorithm {
 	}
 
 	public void traverse() {
-		def urls = records.collect { (it)."serviceName" }
+		def urls = records.collect { (it).serviceName }
 		println urls
 	}
 }

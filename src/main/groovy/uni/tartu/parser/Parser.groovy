@@ -1,14 +1,11 @@
 package uni.tartu.parser
 
-import groovy.transform.CompileStatic
-
 /**
  * author: lkokhreidze
  * date: 2/18/16
  * time: 8:59 PM
  **/
 
-@CompileStatic
 class Parser {
 	public static def parse(File file) {
 		def lines = file.readLines()
