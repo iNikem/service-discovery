@@ -7,8 +7,8 @@ package uni.tartu.parser
  **/
 
 class Parser {
-	public static def parse(File file) {
-		def lines = file.readLines()
+	public static def parse(Closure<File> what) {
+		def lines = what().readLines()
 		def keys = lines[0].split(',').collect { trim(it) }
 		lines[1..-1].collect { line ->
 			def i = 0, values = line.split(',', -1)
