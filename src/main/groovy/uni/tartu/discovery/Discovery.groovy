@@ -6,15 +6,16 @@ package uni.tartu.discovery
  **/
 
 class Discovery {
-	private final Map<DiscoveryType, DiscoveryProcessor> discoveryProviders
+	private final DiscoveryInitializer discoveryInitializer
 
-	Discovery(Map<DiscoveryType, DiscoveryProcessor> discoveryProviders) {
-		this.discoveryProviders = discoveryProviders
+	Discovery(DiscoveryInitializer discoveryInitializer) {
+		this.discoveryInitializer = discoveryInitializer
 	}
 
 	void tokenize() {
-		discoveryProviders.each { k, v ->
+		discoveryInitializer.processors.each { k, v ->
 			println "key: ${k}, size: ${v.size}"
+			println "key: ${k}, size: ${v.tokenize()}"
 		}
 	}
 }

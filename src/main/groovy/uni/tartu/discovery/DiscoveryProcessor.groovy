@@ -6,9 +6,12 @@ package uni.tartu.discovery
  * time: 8:32 PM
  **/
 
-interface DiscoveryProcessor {
-	int getSize()
-	void tokenize()
-	DiscoveryType getType()
-	void init(List<String> services)
+public interface DiscoveryProcessor {
+	public int getSize()
+
+	public void tokenize()
+
+	public DiscoveryType getType()
+
+	public void init(List<String> services)
 }

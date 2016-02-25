@@ -16,6 +16,7 @@ class Helpers {
 	private static void initListHelpers() {
 		List.metaClass.filter { String[] patterns ->
 			delegate.removeAll { entry -> patterns.any { entry.contains(it) } }
+			delegate
 		}
 	}
 }

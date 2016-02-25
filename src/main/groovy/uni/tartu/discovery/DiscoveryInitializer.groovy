@@ -1,32 +1,39 @@
 package uni.tartu.discovery
 
-import org.reflections.Reflections
+import uni.tartu.util.ReflectionUtil
 
 /**
  * author: lkokhreidze
  * date: 2/22/16
  * time: 8:52 PM
+ *
+ * Singleton class for loading discovery providers
  **/
 
 public class DiscoveryInitializer {
+	private static DiscoveryInitializer instance = new DiscoveryInitializer();
+	private Map<DiscoveryType, DiscoveryProcessor> discoveryProviders = [:]
+	private final static String PACKAGE_BASE = "uni.tartu.discovery.providers"
 
-	private final List<String> services
-	private final Map<DiscoveryType, DiscoveryProcessor> discoveryProvider = [:]
-	private final static String DISCOVERY_PROVIDER_PACKAGE_BASE = "uni.tartu.discovery.providers"
+	private DiscoveryInitializer() {}
 
-	public DiscoveryInitializer(List<Map> records) {
-		def services = records.collect { (it).serviceName }
-		services.filter '.html', '$'
-		this.services = services
+	public static DiscoveryInitializer getInstance() {
+		return instance;
 	}
 
-	public Map<DiscoveryType, DiscoveryProcessor> loadProviders() {
-		new Reflections(DISCOVERY_PROVIDER_PACKAGE_BASE).getTypesAnnotatedWith(DiscoveryProvider.class).each {
-			DiscoveryProcessor discoveryProcessor = (DiscoveryProcessor) it.newInstance()
-			discoveryProcessor.init(services)
-			discoveryProvider[(discoveryProcessor.getType())] = discoveryProcessor
+	public static DiscoveryInitializer loadProviders(List<String> records) {
+		ReflectionUtil.scan(PACKAGE_BASE, DiscoveryProvider.class).each { DiscoveryProcessor processor ->
+			processor.init(records)
+			instance.discoveryProviders[(processor.getType())] = processor
 		}
-		discoveryProvider
+		instance
 	}
 
+	public Map<DiscoveryType, DiscoveryProcessor> getProcessors() {
+		discoveryProviders
+	}
+
+	public DiscoveryProcessor getProcessor(DiscoveryType type) {
+		discoveryProviders.get(type)
+	}
 }
