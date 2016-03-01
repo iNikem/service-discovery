@@ -1,4 +1,4 @@
-package uni.tartu.util
+package uni.tartu.utils
 
 /**
  * author: lkokhreidze
@@ -6,8 +6,8 @@ package uni.tartu.util
  * time: 6:48 PM
  **/
 
-class Helpers {
-	private Helpers() {}
+class CollectionUtils {
+	private CollectionUtils() {}
 
 	public static void init() {
 		initListHelpers()

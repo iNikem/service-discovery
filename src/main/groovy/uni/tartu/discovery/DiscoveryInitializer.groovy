@@ -1,6 +1,6 @@
 package uni.tartu.discovery
 
-import uni.tartu.util.ReflectionUtil
+import uni.tartu.utils.ReflectionUtils
 
 /**
  * author: lkokhreidze
@@ -22,7 +22,7 @@ public class DiscoveryInitializer {
 	}
 
 	public static DiscoveryInitializer loadProviders(List<String> records) {
-		ReflectionUtil.scan(PACKAGE_BASE, DiscoveryProvider.class).each { DiscoveryProcessor processor ->
+		ReflectionUtils.scan(PACKAGE_BASE, DiscoveryProvider.class).each { DiscoveryProcessor processor ->
 			processor.init(records)
 			instance.discoveryProviders[(processor.getType())] = processor
 		}

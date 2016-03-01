@@ -9,7 +9,11 @@ package uni.tartu.discovery
 public interface DiscoveryProcessor {
 	public int getSize()
 
-	public void tokenize()
+	public DiscoveryProcessor map()
+
+	public DiscoveryProcessor reduce()
+
+	public DiscoveryProcessor group()
 
 	public DiscoveryType getType()
 

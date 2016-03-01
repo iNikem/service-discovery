@@ -12,7 +12,10 @@ import uni.tartu.discovery.DiscoveryType
 
 @DiscoveryProvider
 class DiscoverRmiServices implements DiscoveryProcessor {
-	public List<String> services
+	private List<String> services
+	private Map<?, ?> grouped
+	private Map<?, ?> mapped
+	private Map<?, ?> reduced
 
 	@Override
 	int getSize() {
@@ -20,13 +23,26 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	void tokenize() {
+	DiscoveryProcessor map() {
+		println "Hello sir, this is RMI Mapper"
+		this
+	}
+
+	@Override
+	DiscoveryProcessor reduce() {
 		//RMI_DISCOVERY specific algorithm
+		println "Hello sir, this is RMI Reducer"
+		this
 	}
 
 	@Override
 	DiscoveryType getType() {
 		DiscoveryType.RMI_DISCOVERY
+	}
+
+	@Override
+	DiscoveryProcessor group() {
+		this
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package uni.tartu.parser
 
-import uni.tartu.util.Helpers
+import uni.tartu.utils.CollectionUtils
 
 /**
  * author: lkokhreidze
@@ -10,7 +10,7 @@ import uni.tartu.util.Helpers
 
 class Parser {
 	public static List<String> parse(Closure<File> what) {
-		Helpers.init()
+		CollectionUtils.init()
 		def lines = what().readLines()
 		def keys = lines[0].split(',').collect { trim(it) }
 		lines[1..-1].collect { line ->

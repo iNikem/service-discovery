@@ -1,4 +1,4 @@
-package uni.tartu.util
+package uni.tartu.utils
 
 import groovy.transform.CompileStatic
 import org.reflections.Reflections
@@ -12,7 +12,9 @@ import java.lang.annotation.Annotation
  **/
 
 @CompileStatic
-class ReflectionUtil<T> {
+class ReflectionUtils<T> {
+	private ReflectionUtils() {}
+
 	public static List<T> scan(String where, Class<? extends Annotation> what) {
 		try {
 			new Reflections(where).getTypesAnnotatedWith(what).collect {

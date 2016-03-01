@@ -14,8 +14,10 @@ class Discovery {
 
 	void tokenize() {
 		discoveryInitializer.processors.each { k, v ->
-			println "key: ${k}, size: ${v.size}"
-			println "key: ${k}, size: ${v.tokenize()}"
+			def res = v
+				.group()
+				.map()
+				.reduce()
 		}
 	}
 }
