@@ -21,7 +21,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 
 	/**
 	 * The most optimal threshold value to discover parameters in the url.
-	 * Need to figure out more smart way to discover threshold.
+	 * TODO: Need to figure out more smart way to discover threshold.
 	 **/
 	private static float EXPERIMENTAL_THRESHOLD = 0.2
 

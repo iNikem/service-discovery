@@ -6,6 +6,7 @@ package uni.tartu.discovery
  * time: 8:32 PM
  **/
 
+//TODO: add method for getting tree like representation of an url
 public interface DiscoveryProcessor {
 	public int getSize()
 
