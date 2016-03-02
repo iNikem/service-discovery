@@ -23,8 +23,20 @@ class TfIdf {
 		this.thirdIteration = thirdIteration
 	}
 
-	public Map runIterations(Map groupedData) {
-		thirdIteration.perform(secondIteration.perform(firstIteration.perform(groupedData)))
+	public Map calculate(Map groupedData) {
+		def data = thirdIteration.perform(secondIteration.perform(firstIteration.perform(groupedData)))
+		calculateTfIdf(data, groupedData.size())
+	}
+
+	private static Map calculateTfIdf(Map data, int D) {
+		data.collectEntries { k, v ->
+			def parts = (v as String).split(";"),
+				 n = parts[0] as int,
+				 N = parts[1] as int,
+				 m = parts[2] as int
+			double tfIdf = ((n / N) as double) * Math.log((D / m) as double)
+			[(k): tfIdf]
+		}
 	}
 
 	static class FirstIteration {

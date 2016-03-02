@@ -55,7 +55,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				v.flatten().each {
 					def parts = (it as String).split(";"),
 						 key = "${k};${parts[0]}",
-						 val = "$N;${parts[1]}"
+						 val = "${parts[1]};$N"
 					map << [(key): (val)]
 				}
 				map
@@ -65,7 +65,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			 */
 			ThirdIteration.build({ k, v ->
 				def parts = (k as String).split(";")
-				put((parts[1]), ("${v};${1};${parts[0] ?: 'null'}"))
+				put((parts[1]), ("${v};1;${parts[0] ?: 'null'}"))
 			}, { map, k, v ->
 				def m = v.sum {
 					(it as String).split(";")[2] as int
@@ -78,7 +78,8 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				}
 				map
 			}))
-		tfIdf.runIterations(this.grouped)
+
+		tfIdf.calculate(this.grouped)
 	}
 
 	@Override
