@@ -16,8 +16,7 @@ class Discovery {
 		discoveryInitializer.processors.each { k, v ->
 			def res = v
 				.group()
-				.map()
-				.reduce()
+				.analyze()
 		}
 	}
 }

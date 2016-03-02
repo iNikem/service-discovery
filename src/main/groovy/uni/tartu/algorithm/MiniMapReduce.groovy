@@ -14,14 +14,15 @@ class MiniMapReduce {
 
 	public static final MultiMap multimap = new MultiMap()
 
+	public static void put(String key, Object value) {
+		multimap.put(key, value)
+	}
+
 	static class Mapper {
 		public static def map(Map what, Closure how) {
+			multimap.clear()
 			what.collect how
 			multimap
-		}
-
-		public static void put(String key, int value) {
-			multimap.put(key, value)
 		}
 	}
 

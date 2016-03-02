@@ -9,9 +9,7 @@ package uni.tartu.discovery
 public interface DiscoveryProcessor {
 	public int getSize()
 
-	public DiscoveryProcessor map()
-
-	public DiscoveryProcessor reduce()
+	public Map analyze()
 
 	public DiscoveryProcessor group()
 

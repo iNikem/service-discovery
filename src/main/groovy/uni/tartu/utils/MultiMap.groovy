@@ -6,13 +6,13 @@ package uni.tartu.utils
  * time: 7:04 PM
  **/
 
-class MultiMap extends HashMap<String, List<Integer>> {
-	public void put(String key, Integer number) {
-		List<Integer> current = get(key)
+class MultiMap extends HashMap<String, List<Object>> {
+	public void put(String key, Object value) {
+		List<Object> current = get(key)
 		if (!current) {
-			current = new ArrayList<Integer>()
+			current = new ArrayList<Object>()
 			super.put(key, current)
 		}
-		current.add(number)
+		current.add(value)
 	}
 }

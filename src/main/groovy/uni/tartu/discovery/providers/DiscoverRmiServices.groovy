@@ -14,8 +14,6 @@ import uni.tartu.discovery.DiscoveryType
 class DiscoverRmiServices implements DiscoveryProcessor {
 	private List<String> services
 	private Map<?, ?> grouped
-	private Map<?, ?> mapped
-	private Map<?, ?> reduced
 
 	@Override
 	int getSize() {
@@ -23,16 +21,9 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	DiscoveryProcessor map() {
+	Map analyze() {
 		println "Hello sir, this is RMI Mapper"
-		this
-	}
-
-	@Override
-	DiscoveryProcessor reduce() {
-		//RMI_DISCOVERY specific algorithm
-		println "Hello sir, this is RMI Reducer"
-		this
+		[:]
 	}
 
 	@Override
@@ -42,6 +33,7 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 
 	@Override
 	DiscoveryProcessor group() {
+		this.grouped = [:]
 		this
 	}
 
