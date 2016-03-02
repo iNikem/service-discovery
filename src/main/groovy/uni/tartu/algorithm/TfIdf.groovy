@@ -23,10 +23,8 @@ class TfIdf {
 		this.thirdIteration = thirdIteration
 	}
 
-	public Map calculate(Map groupedData) {
-		def result = secondIteration.perform(firstIteration.perform(groupedData))
-		def a = ''
-		result
+	public Map runIterations(Map groupedData) {
+		thirdIteration.perform(secondIteration.perform(firstIteration.perform(groupedData)))
 	}
 
 	static class FirstIteration {

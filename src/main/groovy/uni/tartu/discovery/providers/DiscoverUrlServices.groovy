@@ -6,8 +6,7 @@ import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
 
 import static uni.tartu.algorithm.MiniMapReduce.put
-import static uni.tartu.algorithm.TfIdf.FirstIteration
-import static uni.tartu.algorithm.TfIdf.SecondIteration
+import static uni.tartu.algorithm.TfIdf.*
 import static uni.tartu.utils.StringUtils.split
 
 /**
@@ -34,12 +33,14 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			 */
 			FirstIteration.build({ k, v ->
 				v.collect { i ->
-					i.collect { j -> j.equals(k) ?: "$k;$j" }
+					i.collect { j ->
+						j.equals(k) ?: "$k;$j"
+					}
 				}.flatten().each {
 					put((it.toString()), 1)
 				}
-			}, { m, k, v ->
-				m << [(k): v.sum(0)]
+			}, { map, k, v ->
+				map << [(k): v.sum(0)]
 			}),
 			/*
 			 * second MapReduce job closure specification
@@ -47,17 +48,37 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			SecondIteration.build({ k, v ->
 				def arr = (k as String).split(";")
 				arr.length < 2 ?: put(arr[0], "${arr[1]};${v}".toString())
-			}, { m, k, v ->
-				int acc = v.sum { (it as String).split(";")[1] as int }
+			}, { map, k, v ->
+				int N = v.sum {
+					(it as String).split(";")[1] as int
+				}
 				v.flatten().each {
 					def parts = (it as String).split(";"),
 						 key = "${k};${parts[0]}",
-						 val = "$acc;${parts[1]}"
-					m << [(key): (val)]
+						 val = "$N;${parts[1]}"
+					map << [(key): (val)]
 				}
-				m
-			}), null)
-		tfIdf.calculate(this.grouped)
+				map
+			}),
+			/*
+			 * third MapReduce job closure specification
+			 */
+			ThirdIteration.build({ k, v ->
+				def parts = (k as String).split(";")
+				put((parts[1]), ("${v};${1};${parts[0] ?: 'null'}"))
+			}, { map, k, v ->
+				def m = v.sum {
+					(it as String).split(";")[2] as int
+				}
+				v.flatten().each {
+					def parts = (it as String).split(";"),
+						 key = "${k};${parts[3]}",
+						 val = "${parts[0]};${parts[1]};$m"
+					map << [(key): (val)]
+				}
+				map
+			}))
+		tfIdf.runIterations(this.grouped)
 	}
 
 	@Override
