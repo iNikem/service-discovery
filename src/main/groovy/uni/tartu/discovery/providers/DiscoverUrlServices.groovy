@@ -4,6 +4,7 @@ import uni.tartu.algorithm.TfIdf
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
+import uni.tartu.utils.TextDumper
 
 import static uni.tartu.algorithm.MiniMapReduce.put
 import static uni.tartu.algorithm.TfIdf.*
@@ -17,6 +18,13 @@ import static uni.tartu.utils.StringUtils.split
 
 @DiscoveryProvider
 class DiscoverUrlServices implements DiscoveryProcessor {
+
+	/*
+	 * The most optimal threshold value to discover parameters in the url.
+	 * Need to figure out more smart way to discover threshold.
+	 */
+	private static float EXPERIMENTAL_THRESHOLD = 0.2
+
 	private List<String> services
 	private Map<?, ?> grouped
 
@@ -72,14 +80,17 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				}
 				v.flatten().each {
 					def parts = (it as String).split(";"),
-						 key = "${k};${parts[3]}",
-						 val = "${parts[0]};${parts[1]};$m"
+						 key = "${k};${parts[3]}" as String,
+						 val = "${parts[0]};${parts[1]};$m" as String
 					map << [(key): (val)]
 				}
 				map
 			}))
-
-		tfIdf.calculate(this.grouped)
+		def result = tfIdf.calculate(this.grouped)
+		TextDumper.dump("/Users/lkokhreidze/Desktop/sampler.txt", result.findAll {
+			k, v -> (k as String).contains("connect") && v <= EXPERIMENTAL_THRESHOLD
+		})
+		result
 	}
 
 	@Override
