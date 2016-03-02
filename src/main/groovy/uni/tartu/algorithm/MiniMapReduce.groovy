@@ -12,7 +12,7 @@ import uni.tartu.utils.MultiMap
 @CompileStatic
 class MiniMapReduce {
 
-	public static final MultiMap multimap = new MultiMap()
+	private static final MultiMap multimap = new MultiMap()
 
 	public static void put(String key, Object value) {
 		multimap.put(key, value)

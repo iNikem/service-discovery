@@ -14,9 +14,10 @@ class TextDumper {
 			file.delete()
 		}
 		println "dumping text file in directory: $path"
-		data.each { k, _ ->
-			file << k
-			file << System.lineSeparator()
-		}
+		data
+			.collect { k, v -> k }
+			.sort()
+			.each { file << it; file << System.lineSeparator() }
 	}
+
 }

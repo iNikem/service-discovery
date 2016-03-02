@@ -20,6 +20,6 @@ class AlgorithmRunner {
 				.getResource("test-data-1.csv")
 				.toURI())
 		}))
-		discovery.tokenize()
+		discovery.discover()
 	}
 }

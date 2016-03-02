@@ -12,7 +12,7 @@ class Discovery {
 		this.discoveryInitializer = discoveryInitializer
 	}
 
-	void tokenize() {
+	void discover() {
 		discoveryInitializer.processors.each { k, v ->
 			def res = v
 				.group()

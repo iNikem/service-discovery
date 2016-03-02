@@ -4,11 +4,11 @@ import uni.tartu.algorithm.TfIdf
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
-import uni.tartu.utils.TextDumper
 
 import static uni.tartu.algorithm.MiniMapReduce.put
 import static uni.tartu.algorithm.TfIdf.*
 import static uni.tartu.utils.StringUtils.split
+import static uni.tartu.utils.TextDumper.dump
 
 /**
  * author: lkokhreidze
@@ -19,10 +19,10 @@ import static uni.tartu.utils.StringUtils.split
 @DiscoveryProvider
 class DiscoverUrlServices implements DiscoveryProcessor {
 
-	/*
+	/**
 	 * The most optimal threshold value to discover parameters in the url.
 	 * Need to figure out more smart way to discover threshold.
-	 */
+	 **/
 	private static float EXPERIMENTAL_THRESHOLD = 0.2
 
 	private List<String> services
@@ -36,9 +36,9 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	@Override
 	Map analyze() {
 		TfIdf tfIdf = new TfIdf(
-			/*
+			/**
 			 * first MapReduce job closure specification
-			 */
+			 **/
 			FirstIteration.build({ k, v ->
 				v.collect { i ->
 					i.collect { j ->
@@ -50,9 +50,9 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			}, { map, k, v ->
 				map << [(k): v.sum(0)]
 			}),
-			/*
+			/**
 			 * second MapReduce job closure specification
-			 */
+			 **/
 			SecondIteration.build({ k, v ->
 				def arr = (k as String).split(";")
 				arr.length < 2 ?: put(arr[0], "${arr[1]};${v}".toString())
@@ -68,9 +68,9 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				}
 				map
 			}),
-			/*
+			/**
 			 * third MapReduce job closure specification
-			 */
+			 **/
 			ThirdIteration.build({ k, v ->
 				def parts = (k as String).split(";")
 				put((parts[1]), ("${v};1;${parts[0] ?: 'null'}"))
@@ -86,11 +86,11 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				}
 				map
 			}))
-		def result = tfIdf.calculate(this.grouped)
-		TextDumper.dump("/Users/lkokhreidze/Desktop/sampler.txt", result.findAll {
+		def scores = tfIdf.calculate(this.grouped)
+		dump("/Users/lkokhreidze/Desktop/sampler.txt", scores.findAll {
 			k, v -> (k as String).contains("connect") && v <= EXPERIMENTAL_THRESHOLD
 		})
-		result
+		scores
 	}
 
 	@Override
