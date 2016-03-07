@@ -103,14 +103,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 		this.grouped = this.services
 			.collect { split(it, ";") }
 			.groupBy { it[0] }
-			.collectEntries { k, v ->
-			[(k): v.collect {
-				if(it.length <= 1) {
-					println "dafaq  $it"
-				}
-				split(it[1], ".")
-			}]
-		}
+			.collectEntries { k, v -> [(k): v.collect { split(it[1], ".") }] }
 		this
 	}
 
@@ -123,7 +116,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	void init(List<String> services) {
 		/**
 		 * during initialization phase we should determine delimiter type using DelimiterAnalyzer class
- 		 */
+		 */
 		this.services = services.findAll {
 			def parts = it.split(';')
 			parts[1].startsWith("/")
