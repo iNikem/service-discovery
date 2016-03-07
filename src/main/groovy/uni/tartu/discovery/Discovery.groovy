@@ -14,9 +14,8 @@ class Discovery {
 
 	void discover() {
 		discoveryInitializer.processors.each { k, v ->
-			def res = v
-				.group()
-				.analyze()
+			def result = v.group().analyze()
+			println "Got result from: $k, with size: ${result.size()}"
 		}
 	}
 }

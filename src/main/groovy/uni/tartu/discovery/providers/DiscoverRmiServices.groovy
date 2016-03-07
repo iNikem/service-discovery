@@ -22,7 +22,7 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 
 	@Override
 	Map analyze() {
-		println "Hello sir, this is RMI Mapper"
+		println "Hello sir, this is RMI analyzer"
 		[:]
 	}
 
@@ -39,6 +39,9 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 
 	@Override
 	void init(List<String> services) {
-		this.services = services.findAll { !it.startsWith("/") && it.contains(".") }
+		this.services = services.findAll {
+			def parts = it.split(';')
+			!parts[1].startsWith("/") && parts[1].contains(".")
+		}
 	}
 }

@@ -7,6 +7,7 @@ import uni.tartu.discovery.DiscoveryType
 
 import static uni.tartu.algorithm.MiniMapReduce.put
 import static uni.tartu.algorithm.TfIdf.*
+import static uni.tartu.utils.StringUtils.clean
 import static uni.tartu.utils.StringUtils.split
 import static uni.tartu.utils.TextDumper.dump
 
@@ -23,7 +24,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	 * The most optimal threshold value to discover parameters in the url.
 	 * TODO: Need to figure out more smart way to discover threshold.
 	 **/
-	private static float EXPERIMENTAL_THRESHOLD = 0.2
+	private static float PARAMETER_THRESHOLD = 0.001
 
 	private List<String> services
 	private Map<?, ?> grouped
@@ -87,18 +88,29 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				map
 			}))
 		def scores = tfIdf.calculate(this.grouped)
-		dump("/Users/lkokhreidze/Desktop/sampler.txt", scores.findAll {
-			k, v -> (k as String).contains("connect") && v <= EXPERIMENTAL_THRESHOLD
-		})
+		dump("/Users/lkokhreidze/Desktop",
+			scores.findAll { _, v ->
+				v > PARAMETER_THRESHOLD
+			},
+			scores.findAll { _, v ->
+				v <= PARAMETER_THRESHOLD
+			})
 		scores
 	}
 
 	@Override
 	DiscoveryProcessor group() {
 		this.grouped = this.services
-			.collect { split(it, "/") }
-			.findAll { it.length > 0 }
+			.collect { split(it, ";") }
 			.groupBy { it[0] }
+			.collectEntries { k, v ->
+			[(k): v.collect {
+				if(it.length <= 1) {
+					println "dafaq  $it"
+				}
+				split(it[1], ".")
+			}]
+		}
 		this
 	}
 
@@ -109,6 +121,14 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 
 	@Override
 	void init(List<String> services) {
-		this.services = services.findAll { it.startsWith("/") }
+		/**
+		 * during initialization phase we should determine delimiter type using DelimiterAnalyzer class
+ 		 */
+		this.services = services.findAll {
+			def parts = it.split(';')
+			parts[1].startsWith("/")
+		}.collect {
+			clean(it)
+		}
 	}
 }

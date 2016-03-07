@@ -25,7 +25,7 @@ class TfIdf {
 
 	public Map calculate(Map groupedData) {
 		def analyzedData = thirdIteration.perform(secondIteration.perform(firstIteration.perform(groupedData)))
-		calculateTfIdf(analyzedData, groupedData.size())
+		calculateTfIdf(analyzedData, 12)
 	}
 
 	private static Map calculateTfIdf(Map data, int D) {

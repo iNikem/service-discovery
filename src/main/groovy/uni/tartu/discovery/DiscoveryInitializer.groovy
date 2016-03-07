@@ -11,14 +11,14 @@ import uni.tartu.utils.ReflectionUtils
  **/
 
 public class DiscoveryInitializer {
-	private static DiscoveryInitializer instance = new DiscoveryInitializer();
+	private static DiscoveryInitializer instance = new DiscoveryInitializer()
 	private Map<DiscoveryType, DiscoveryProcessor> discoveryProviders = [:]
 	private final static String PACKAGE_BASE = "uni.tartu.discovery.providers"
 
 	private DiscoveryInitializer() {}
 
 	public static DiscoveryInitializer getInstance() {
-		return instance;
+		return instance
 	}
 
 	public static DiscoveryInitializer loadProviders(List<String> records) {

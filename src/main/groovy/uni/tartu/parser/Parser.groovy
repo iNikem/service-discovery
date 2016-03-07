@@ -2,6 +2,8 @@ package uni.tartu.parser
 
 import uni.tartu.utils.CollectionUtils
 
+import static uni.tartu.utils.StringUtils.trim
+
 /**
  * author: lkokhreidze
  * date: 2/18/16
@@ -16,10 +18,6 @@ class Parser {
 		lines[1..-1].collect { line ->
 			def i = 0, values = line.split(',', -1)
 			keys.inject([:]) { m, k -> m << [(k): trim(values[i++])] }
-		}.collect { it.serviceName }.filter '.html', '$'
-	}
-
-	private static def trim(String str) {
-		str.replace('\"', '')
+		}.collect { "${it.accountId};${it.serviceName}" }.filter '.html', '$'
 	}
 }
