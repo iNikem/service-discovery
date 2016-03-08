@@ -41,6 +41,6 @@ dependencies {
 }
 
 task run(dependsOn: 'classes', type: JavaExec) {
-	main = 'uni.tartu.AlgorithmRunner'
+	main = 'uni.tartu.Main'
 	classpath = sourceSets.main.runtimeClasspath
 }

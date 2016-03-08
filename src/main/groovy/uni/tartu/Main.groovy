@@ -11,10 +11,10 @@ import static uni.tartu.parser.Parser.parse
  * time: 7:33 PM
  **/
 
-class AlgorithmRunner {
+class Main {
 	public static void main(String[] args) {
 		def discovery = new Discovery(DiscoveryInitializer.loadProviders(parse {
-			new File(AlgorithmRunner
+			new File(Main
 				.class
 				.getClassLoader()
 				.getResource("test-data-2.csv")

@@ -21,10 +21,10 @@ class StringUtils {
 	}
 
 	/**
-	 * TODO: need to pass separator as parameter
-	 * performs data maintenance.
+	 * performs initial and final data maintenance.
 	 * removes params from last index of separator.
 	 * @param str - raw url data
+	 * @param separator - optional parameter. Indicates separator in the url.
 	 * @return lower case url without parameter values.
 	 */
 	public static String clean(String str, String separator = null) {
@@ -38,11 +38,11 @@ class StringUtils {
 		}
 		int index = str.indexOf(PARAMETER_INDICATOR)
 		if (index != -1) {
-			def dot = str.indexOf(".")
+			def dot = str.indexOf(separator)
 			if (dot == -1) {
 				return str
 			}
-			int lDot = str.lastIndexOf(".", index)
+			int lDot = str.lastIndexOf(separator, index)
 			if (lDot == -1) {
 				return str
 			}
