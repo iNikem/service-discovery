@@ -20,8 +20,8 @@ class ReflectionUtils<T> {
 			new Reflections(where).getTypesAnnotatedWith(what).collect {
 				it.newInstance() as T
 			}
-		} catch (InstantiationException | IllegalAccessException ignored) {
-			throw new RuntimeException("couldn't scan for classes", ignored)
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException("couldn't scan for classes", e)
 		}
 	}
 }

@@ -6,14 +6,14 @@ package uni.tartu.discovery
  **/
 
 class Discovery {
-	private final DiscoveryInitializer discoveryInitializer
+	private final Map<DiscoveryType, DiscoveryProcessor> discoveryProviders
 
-	Discovery(DiscoveryInitializer discoveryInitializer) {
-		this.discoveryInitializer = discoveryInitializer
+	Discovery(Map<DiscoveryType, DiscoveryProcessor> discoveryProviders) {
+		this.discoveryProviders = discoveryProviders
 	}
 
 	void discover() {
-		discoveryInitializer.processors.each { k, v ->
+		this.discoveryProviders.each { k, v ->
 			def result = v.group().analyze()
 			println "Got result from: $k, with size: ${result.size()}"
 		}

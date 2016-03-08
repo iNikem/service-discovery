@@ -1,9 +1,9 @@
 package uni.tartu
 
 import uni.tartu.discovery.Discovery
-import uni.tartu.discovery.DiscoveryInitializer
 
 import static uni.tartu.parser.Parser.parse
+import static uni.tartu.discovery.DiscoveryInitializer.getInstance
 
 /**
  * author: lkokhreidze
@@ -13,7 +13,7 @@ import static uni.tartu.parser.Parser.parse
 
 class Main {
 	public static void main(String[] args) {
-		def discovery = new Discovery(DiscoveryInitializer.loadProviders(parse {
+		def discovery = new Discovery(getInstance().loadProviders(parse {
 			new File(Main
 				.class
 				.getClassLoader()

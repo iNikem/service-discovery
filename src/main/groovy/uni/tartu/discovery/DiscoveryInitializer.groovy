@@ -21,19 +21,11 @@ public class DiscoveryInitializer {
 		return instance
 	}
 
-	public static DiscoveryInitializer loadProviders(List<String> records) {
+	public Map<DiscoveryType, DiscoveryProcessor> loadProviders(List<String> records) {
 		ReflectionUtils.scan(PACKAGE_BASE, DiscoveryProvider.class).each { DiscoveryProcessor processor ->
 			processor.init(records)
-			instance.discoveryProviders[(processor.getType())] = processor
+			discoveryProviders[(processor.getType())] = processor
 		}
-		instance
-	}
-
-	public Map<DiscoveryType, DiscoveryProcessor> getProcessors() {
 		discoveryProviders
-	}
-
-	public DiscoveryProcessor getProcessor(DiscoveryType type) {
-		discoveryProviders.get(type)
 	}
 }
