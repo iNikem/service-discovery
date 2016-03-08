@@ -12,7 +12,7 @@ import java.lang.annotation.Target
  * time: 9:31 PM
  **/
 
+@Inherited
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
 public @interface DiscoveryProvider {}

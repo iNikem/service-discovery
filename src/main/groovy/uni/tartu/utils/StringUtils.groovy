@@ -27,8 +27,11 @@ class StringUtils {
 	 * @param str - raw url data
 	 * @return lower case url without parameter values.
 	 */
-	public static String clean(String str) {
+	public static String clean(String str, String separator = null) {
 		str = str.replaceFirst("/", "").toLowerCase()
+		if (!separator) {
+			return str
+		}
 		def i = str.indexOf("?")
 		if (i != -1) {
 			return str.substring(0, i)
@@ -39,7 +42,7 @@ class StringUtils {
 			if (dot == -1) {
 				return str
 			}
-			int lDot = str.lastIndexOf(".", index);
+			int lDot = str.lastIndexOf(".", index)
 			if (lDot == -1) {
 				return str
 			}
@@ -51,7 +54,7 @@ class StringUtils {
 					index = str.indexOf(PARAMETER_INDICATOR, index + 1)
 					if (index != -1 && index > lDot) {
 						j = index
-						break;
+						break
 					}
 				}
 			}
