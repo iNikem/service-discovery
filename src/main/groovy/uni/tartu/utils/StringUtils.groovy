@@ -28,9 +28,8 @@ class StringUtils {
 	 * @return lower case url without parameter values.
 	 */
 	public static String clean(String str, String separator = null) {
-		str = str.replaceFirst("/", "").toLowerCase()
 		if (!separator) {
-			return str
+			return str.replaceFirst("/", "").toLowerCase()
 		}
 		def i = str.indexOf("?")
 		if (i != -1) {

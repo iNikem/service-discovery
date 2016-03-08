@@ -3,7 +3,7 @@ package uni.tartu
 import uni.tartu.discovery.Discovery
 
 import static uni.tartu.parser.Parser.parse
-import static uni.tartu.discovery.DiscoveryInitializer.getInstance
+import static uni.tartu.discovery.DiscoveryInitializer.getInitializerInstance
 
 /**
  * author: lkokhreidze
@@ -13,11 +13,11 @@ import static uni.tartu.discovery.DiscoveryInitializer.getInstance
 
 class Main {
 	public static void main(String[] args) {
-		def discovery = new Discovery(getInstance().loadProviders(parse {
+		def discovery = new Discovery(getInitializerInstance().loadProviders(parse {
 			new File(Main
 				.class
 				.getClassLoader()
-				.getResource("test-data-2.csv")
+				.getResource("training-data.csv")
 				.toURI())
 		}))
 		discovery.discover()
