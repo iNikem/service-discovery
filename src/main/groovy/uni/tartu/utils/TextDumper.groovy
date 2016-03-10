@@ -1,6 +1,7 @@
 package uni.tartu.utils
 
 import groovy.transform.CompileStatic
+import uni.tartu.storage.AnalyzedUrlData
 
 /**
  * author: lkokhreidze
@@ -13,8 +14,8 @@ class TextDumper {
 
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator")
 
-	public static void dump(String dir, Map... set) {
-		set.eachWithIndex { Map data, i ->
+	public static void dump(String dir, List<AnalyzedUrlData>... set) {
+		set.eachWithIndex { List<AnalyzedUrlData> data, i ->
 			def file = new File("$dir/data-${i}.txt".toString()),
 				 path = file.getAbsolutePath()
 			if (file.exists()) {
@@ -23,7 +24,7 @@ class TextDumper {
 			}
 			println "dumping text file in $path, with size: ${data.size()}"
 			data
-				.collect { k, v -> "$k - $v" }
+				.collect { it.toString() }
 				.each { file << it; file << LINE_SEPARATOR }
 		}
 	}

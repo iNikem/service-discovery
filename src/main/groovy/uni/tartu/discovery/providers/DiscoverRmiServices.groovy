@@ -3,6 +3,7 @@ package uni.tartu.discovery.providers
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
+import uni.tartu.storage.AnalyzedUrlData
 
 /**
  * author: lkokhreidze
@@ -21,9 +22,9 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	Map analyze() {
+	List<AnalyzedUrlData> analyze() {
 		println "Hello sir, this is RMI analyzer"
-		[:]
+		[]
 	}
 
 	@Override

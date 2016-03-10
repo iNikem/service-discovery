@@ -1,5 +1,7 @@
 package uni.tartu.discovery
 
+import uni.tartu.storage.AnalyzedUrlData
+
 /**
  * author: lkokhreidze
  * date: 2/22/16
@@ -10,7 +12,7 @@ package uni.tartu.discovery
 public interface DiscoveryProcessor {
 	public int getSize()
 
-	public Map analyze()
+	public List<AnalyzedUrlData> analyze()
 
 	public DiscoveryProcessor group()
 

@@ -1,5 +1,7 @@
 package uni.tartu.algorithm
 
+import uni.tartu.storage.AnalyzedUrlData
+
 import static uni.tartu.algorithm.MiniMapReduce.Mapper
 import static uni.tartu.algorithm.MiniMapReduce.Reducer
 
@@ -11,6 +13,7 @@ import static uni.tartu.algorithm.MiniMapReduce.Reducer
 
 class TfIdf {
 
+	private final List<AnalyzedUrlData> analyzedUrls = new ArrayList<AnalyzedUrlData>()
 	private FirstIteration firstIteration
 	private SecondIteration secondIteration
 	private ThirdIteration thirdIteration
@@ -23,20 +26,22 @@ class TfIdf {
 		this.thirdIteration = thirdIteration
 	}
 
-	public Map calculate(Map groupedData) {
+	public List<AnalyzedUrlData> calculate(Map groupedData) {
 		def analyzedData = thirdIteration.perform(secondIteration.perform(firstIteration.perform(groupedData)))
 		calculateTfIdf(analyzedData, 12)
 	}
 
-	private static Map calculateTfIdf(Map data, int D) {
-		data.collectEntries { k, v ->
+	private List<AnalyzedUrlData> calculateTfIdf(Map data, int D) {
+		data.each { k, v ->
 			def parts = (v as String).split(";"),
 				 n = parts[0] as int,
 				 N = parts[1] as int,
 				 m = parts[2] as int
 			double tfIdf = ((n / N) as double) * Math.log((D / m) as double)
-			[(k): tfIdf]
+			def ids = (k as String).split(";")
+			analyzedUrls.add(new AnalyzedUrlData(id: ids[1], urlPart: ids[0], score: tfIdf))
 		}
+		analyzedUrls
 	}
 
 	static class FirstIteration {

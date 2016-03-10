@@ -1,10 +1,13 @@
 package uni.tartu.discovery.providers
 
 import uni.tartu.algorithm.DelimiterAnalyzer
+import uni.tartu.algorithm.ScoreAnalyzer
 import uni.tartu.algorithm.TfIdf
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
+import uni.tartu.storage.AnalyzedUrlData
+import uni.tartu.storage.RawUrlData
 
 import static uni.tartu.algorithm.DelimiterAnalyzer.getInstance
 import static uni.tartu.algorithm.MiniMapReduce.put
@@ -30,6 +33,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	 **/
 	private static float PARAMETER_THRESHOLD = 0.001
 
+	private final List<RawUrlData> originalServices = new ArrayList<RawUrlData>()
 	private Map<String, List<String>> initialGroups
 	private Map<?, ?> grouped
 
@@ -39,7 +43,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	Map analyze() {
+	List<AnalyzedUrlData> analyze() {
 		TfIdf tfIdf = new TfIdf(
 			/**
 			 * first MapReduce job closure specification
@@ -93,20 +97,21 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			}))
 		def scores = tfIdf.calculate(this.grouped)
 		dump("/Users/lkokhreidze/Desktop",
-			scores.findAll { _, v ->
-				v > PARAMETER_THRESHOLD
+			scores.findAll {
+				it.score > PARAMETER_THRESHOLD
 			},
-			scores.findAll { _, v ->
-				v <= PARAMETER_THRESHOLD
+			scores.findAll {
+				it.score <= PARAMETER_THRESHOLD
 			})
+		def scoreAnalyzer = new ScoreAnalyzer(originalServices, scores)
 		scores
 	}
 
 	@Override
 	DiscoveryProcessor group() {
-		this.grouped = this.initialGroups.collectEntries { k, v ->
-			[(k): v.collect { split(it, analyzer.getDelimiter(k)) }]
-		}
+		this.grouped = this
+			.initialGroups
+			.collectEntries { k, v -> [(k): v.collect { split(it, analyzer.getDelimiter(k)) }] }
 		this
 	}
 
@@ -117,11 +122,15 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 
 	@Override
 	void init(List<String> services) {
-		analyzer.build(services
-			.findAll { it.split(';')[1].startsWith("/") }
-			.collect { clean(it) })
-		this.initialGroups = analyzer.initialGroups.collectEntries { k, v ->
-			[(k): v.collect { clean(it, analyzer.getDelimiter(k)) }]
+		services.findAll { it.split(';')[1].startsWith("/") }.each {
+			def cleaned = clean(it)
+			def parts = cleaned.split(';')
+			originalServices.add(new RawUrlData(id: parts[0], rawUrl: parts[1]))
+		}
+		analyzer.build(originalServices.collect { it.toString() })
+		this.initialGroups = analyzer
+			.initialGroups
+			.collectEntries { k, v -> [(k): v.collect { clean(it, analyzer.getDelimiter(k)) }]
 		} as Map<String, List<String>>
 	}
 }
