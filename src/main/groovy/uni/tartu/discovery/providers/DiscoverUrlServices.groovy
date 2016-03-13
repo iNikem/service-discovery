@@ -8,12 +8,14 @@ import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
 import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.RawUrlData
+import uni.tartu.storage.WordIdHolderData
 
 import static uni.tartu.algorithm.DelimiterAnalyzer.getInstance
 import static uni.tartu.algorithm.MiniMapReduce.put
+import static uni.tartu.algorithm.MiniMapReduce.putUrlIdHolder
+import static uni.tartu.algorithm.MiniMapReduce.getUrlIdHolders
 import static uni.tartu.algorithm.TfIdf.*
-import static uni.tartu.utils.StringUtils.clean
-import static uni.tartu.utils.StringUtils.split
+import static uni.tartu.utils.StringUtils.*
 import static uni.tartu.utils.TextDumper.dump
 
 /**
@@ -33,7 +35,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	 **/
 	private static float PARAMETER_THRESHOLD = 0.001
 
-	private final List<RawUrlData> originalServices = new ArrayList<RawUrlData>()
+	private final Map<Integer, RawUrlData> originalServices = new HashMap<Integer, RawUrlData>()
 	private Map<String, List<String>> initialGroups
 	private Map<?, ?> grouped
 
@@ -51,10 +53,24 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			FirstIteration.build({ k, v ->
 				v.collect { i ->
 					i.collect { j ->
-						j.equals(k) ?: "$k;$j"
+						def keys = getKey(k as String)
+						j.equals(keys[0]) ?: "${keys[0]};${j}__${keys[1]}".toString()
 					}
 				}.flatten().each {
-					put((it.toString()), 1)
+					def keys = getKey(it as String)
+					if (keys) {
+						def urlPart = keys[0],
+						urlId = keys[1] as int
+						def originalUrl = originalServices.get(urlId).rawUrl
+						def bpa = split(urlPart, ";")
+						if(bpa.length < 2) {
+							putUrlIdHolder('null', new WordIdHolderData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
+						} else {
+							putUrlIdHolder(bpa[1], new WordIdHolderData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
+						}
+
+						put((urlPart), 1)
+					}
 				}
 			}, { map, k, v ->
 				map << [(k): v.sum(0)]
@@ -95,7 +111,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				}
 				map
 			}))
-		def scores = tfIdf.calculate(this.grouped)
+		def scores = tfIdf.calculate(this.grouped).values().toList()
 		dump("/Users/lkokhreidze/Desktop",
 			scores.findAll {
 				it.score > PARAMETER_THRESHOLD
@@ -103,7 +119,8 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			scores.findAll {
 				it.score <= PARAMETER_THRESHOLD
 			})
-		def scoreAnalyzer = new ScoreAnalyzer(originalServices, scores)
+//		def scoreAnalyzer = new ScoreAnalyzer(scores)
+//		scoreAnalyzer.analyzeUrlScores()
 		scores
 	}
 
@@ -122,15 +139,14 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 
 	@Override
 	void init(List<String> services) {
-		services.findAll { it.split(';')[1].startsWith("/") }.each {
-			def cleaned = clean(it)
+		services.findAll { it.split(';')[1].startsWith("/") }.eachWithIndex { url, i ->
+			def cleaned = clean(url)
 			def parts = cleaned.split(';')
-			originalServices.add(new RawUrlData(id: parts[0], rawUrl: parts[1]))
+			originalServices.put(i, new RawUrlData(id: parts[0], rawUrl: parts[1], urlId: i))
 		}
-		analyzer.build(originalServices.collect { it.toString() })
+		analyzer.build(originalServices.values().toList())
 		this.initialGroups = analyzer
-			.initialGroups
-			.collectEntries { k, v -> [(k): v.collect { clean(it, analyzer.getDelimiter(k)) }]
+			.initialGroups.collectEntries { k, v -> [(k): v.collect { clean(it, analyzer.getDelimiter(k)) }]
 		} as Map<String, List<String>>
 	}
 }

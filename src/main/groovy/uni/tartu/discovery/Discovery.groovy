@@ -1,4 +1,5 @@
 package uni.tartu.discovery
+
 /**
  * author: lkokhreidze
  * date: 2/18/16

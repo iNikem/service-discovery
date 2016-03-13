@@ -1,4 +1,4 @@
-package uni.tartu.utils
+package uni.tartu.storage
 
 /**
  * author: lkokhreidze

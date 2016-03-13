@@ -2,6 +2,7 @@ package uni.tartu.algorithm
 
 import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.RawUrlData
+import uni.tartu.storage.WordIdHolderData
 
 /**
  * author: lkokhreidze
@@ -11,11 +12,16 @@ import uni.tartu.storage.RawUrlData
 
 class ScoreAnalyzer {
 
-	private final List<RawUrlData> urlBuckets
 	private final List<AnalyzedUrlData> analyzedUrls
 
-	ScoreAnalyzer(List<RawUrlData> urlBuckets, List<AnalyzedUrlData> analyzedUrls) {
-		this.urlBuckets = urlBuckets
+	ScoreAnalyzer(List<AnalyzedUrlData> analyzedUrls) {
 		this.analyzedUrls = analyzedUrls
+	}
+
+	public void analyzeUrlScores() {
+//		def params = analyzedUrls.findAll { it.score <= 0.001 }
+//		def buckets = urlBuckets.groupBy { it.urlId }
+//		def param = params.groupBy { it.urlId }
+//		def res = ''
 	}
 }

@@ -9,6 +9,7 @@ package uni.tartu.storage
 class RawUrlData {
 
 	public String id
+	public int urlId
 	public String rawUrl
 
 	@Override

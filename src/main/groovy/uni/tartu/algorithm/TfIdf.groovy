@@ -1,9 +1,9 @@
 package uni.tartu.algorithm
 
 import uni.tartu.storage.AnalyzedUrlData
+import uni.tartu.storage.WordIdHolderData
 
-import static uni.tartu.algorithm.MiniMapReduce.Mapper
-import static uni.tartu.algorithm.MiniMapReduce.Reducer
+import static uni.tartu.algorithm.MiniMapReduce.*
 
 /**
  * author: lkokhreidze
@@ -13,7 +13,9 @@ import static uni.tartu.algorithm.MiniMapReduce.Reducer
 
 class TfIdf {
 
-	private final List<AnalyzedUrlData> analyzedUrls = new ArrayList<AnalyzedUrlData>()
+	private static float PARAMETER_THRESHOLD = 0.001
+
+	private final Map<String, AnalyzedUrlData> analyzedUrls = new HashMap<>()
 	private FirstIteration firstIteration
 	private SecondIteration secondIteration
 	private ThirdIteration thirdIteration
@@ -26,12 +28,13 @@ class TfIdf {
 		this.thirdIteration = thirdIteration
 	}
 
-	public List<AnalyzedUrlData> calculate(Map groupedData) {
+	public Map<String, AnalyzedUrlData> calculate(Map groupedData) {
 		def analyzedData = thirdIteration.perform(secondIteration.perform(firstIteration.perform(groupedData)))
 		calculateTfIdf(analyzedData, 12)
 	}
 
-	private List<AnalyzedUrlData> calculateTfIdf(Map data, int D) {
+	private Map<String, AnalyzedUrlData> calculateTfIdf(Map data, int D) {
+		def wordIdHolder = getUrlIdHolders()
 		data.each { k, v ->
 			def parts = (v as String).split(";"),
 				 n = parts[0] as int,
@@ -39,7 +42,26 @@ class TfIdf {
 				 m = parts[2] as int
 			double tfIdf = ((n / N) as double) * Math.log((D / m) as double)
 			def ids = (k as String).split(";")
-			analyzedUrls.add(new AnalyzedUrlData(id: ids[1], urlPart: ids[0], score: tfIdf))
+			def id = ids[1]
+			def urlPart = ids[0]
+			def res = wordIdHolder.get(urlPart)
+			res.each {
+				def holder = it as WordIdHolderData
+				def urlId = holder.urlId
+				if (tfIdf <= PARAMETER_THRESHOLD) {
+					if (analyzedUrls.containsKey(holder.originalUrl)) {
+						analyzedUrls.get(holder.originalUrl).urlPart.add(urlPart)
+					} else {
+						def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
+						analyzedUrl.urlPart = [urlPart]
+						analyzedUrls.put(holder.originalUrl, analyzedUrl)
+					}
+				} else {
+					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
+					analyzedUrl.urlPart = []
+					analyzedUrls.put(holder.originalUrl, analyzedUrl)
+				}
+			}
 		}
 		analyzedUrls
 	}

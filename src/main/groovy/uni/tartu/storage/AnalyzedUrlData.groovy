@@ -7,12 +7,14 @@ package uni.tartu.storage
  **/
 
 class AnalyzedUrlData {
-	public String id
-	public String urlPart
+	public String accountId
+	public int urlId
+	public List<String> urlPart
 	public double score
+	public String originalUrl
 
 	@Override
 	public String toString() {
-		return "$id;$urlPart - $score".toString();
+		return "$accountId;$originalUrl - ($urlId) params: ${urlPart}".toString();
 	}
 }

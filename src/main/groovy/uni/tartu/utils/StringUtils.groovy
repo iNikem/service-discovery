@@ -20,6 +20,15 @@ class StringUtils {
 		str.replace('\"', '')
 	}
 
+	public static String[] getKey(String str) {
+		int i = str.lastIndexOf("__")
+		if(i == -1) {
+			return []
+		}
+		def res = [str.substring(0, i), str.substring(i + 2)]
+		res
+	}
+
 	/**
 	 * performs initial and final data maintenance.
 	 * removes params from last index of separator.

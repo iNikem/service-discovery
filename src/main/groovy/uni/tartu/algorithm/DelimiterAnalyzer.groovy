@@ -1,5 +1,7 @@
 package uni.tartu.algorithm
 
+import uni.tartu.storage.RawUrlData
+
 import static uni.tartu.utils.StringUtils.split
 
 /**
@@ -29,14 +31,14 @@ class DelimiterAnalyzer {
 	}
 
 	public String getDelimiter(String id) {
-		analyzedDelimiters[id]
+		def d = analyzedDelimiters[(id).split("_")[0]]
+		d
 	}
 
-	public void build(List<String> services) {
+	public void build(List<RawUrlData> services) {
 		initialGrouping = services
-			.collect { split(it, ";") }
-			.groupBy { it[0] }
-			.collectEntries { k, v -> [(k): v.collect { it[1] }] }
+			.groupBy { "${it.id}__${it.urlId}".toString() }
+			.collectEntries { k, v -> [(k): v.collect { it.rawUrl }] }
 		analyze()
 	}
 
@@ -47,6 +49,7 @@ class DelimiterAnalyzer {
 	@SuppressWarnings("GroovyAssignabilityCheck")
 	private void analyze() {
 		initialGrouping.inject([:]) { map, k, List<String> v ->
+			k = (k as String).split("__")[0]
 			map << [(k): knownDelimiters.collectEntries { key, delimiter ->
 				[(key): (v.count { it.contains(delimiter) } * 100) / v.size()]
 			}]
