@@ -1,7 +1,6 @@
 package uni.tartu.discovery.providers
 
 import uni.tartu.algorithm.DelimiterAnalyzer
-import uni.tartu.algorithm.ScoreAnalyzer
 import uni.tartu.algorithm.TfIdf
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
@@ -13,7 +12,6 @@ import uni.tartu.storage.WordIdHolderData
 import static uni.tartu.algorithm.DelimiterAnalyzer.getInstance
 import static uni.tartu.algorithm.MiniMapReduce.put
 import static uni.tartu.algorithm.MiniMapReduce.putUrlIdHolder
-import static uni.tartu.algorithm.MiniMapReduce.getUrlIdHolders
 import static uni.tartu.algorithm.TfIdf.*
 import static uni.tartu.utils.StringUtils.*
 import static uni.tartu.utils.TextDumper.dump
@@ -60,10 +58,10 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 					def keys = getKey(it as String)
 					if (keys) {
 						def urlPart = keys[0],
-						urlId = keys[1] as int
+							 urlId = keys[1] as int
 						def originalUrl = originalServices.get(urlId).rawUrl
 						def bpa = split(urlPart, ";")
-						if(bpa.length < 2) {
+						if (bpa.length < 2) {
 							putUrlIdHolder('null', new WordIdHolderData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
 						} else {
 							putUrlIdHolder(bpa[1], new WordIdHolderData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
@@ -112,15 +110,14 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				map
 			}))
 		def scores = tfIdf.calculate(this.grouped).values().toList()
-		dump("/Users/lkokhreidze/Desktop",
-			scores.findAll {
-				it.score > PARAMETER_THRESHOLD
-			},
-			scores.findAll {
-				it.score <= PARAMETER_THRESHOLD
-			})
-//		def scoreAnalyzer = new ScoreAnalyzer(scores)
-//		scoreAnalyzer.analyzeUrlScores()
+		def staticParts = scores.findAll { it.score > PARAMETER_THRESHOLD },
+		 	 dynamicParts = scores.findAll { it.score <= PARAMETER_THRESHOLD }
+		def actualServices = staticParts.collect {
+			it.staticParts
+		}.flatten().unique().size()
+		def reducePercentage = 100 - ((actualServices * 100) / originalServices.size())
+		println "Actual Service Size is: $actualServices. Original services reduced by $reducePercentage"
+		dump("/Users/lkokhreidze/Desktop", staticParts, dynamicParts)
 		scores
 	}
 

@@ -48,17 +48,18 @@ class TfIdf {
 			res.each {
 				def holder = it as WordIdHolderData
 				def urlId = holder.urlId
-				if (tfIdf <= PARAMETER_THRESHOLD) {
-					if (analyzedUrls.containsKey(holder.originalUrl)) {
-						analyzedUrls.get(holder.originalUrl).urlPart.add(urlPart)
-					} else {
-						def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
-						analyzedUrl.urlPart = [urlPart]
-						analyzedUrls.put(holder.originalUrl, analyzedUrl)
-					}
-				} else {
+				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= PARAMETER_THRESHOLD) {
+					analyzedUrls.get(holder.originalUrl).urlPart.add(urlPart)
+				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= PARAMETER_THRESHOLD) {
 					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
-					analyzedUrl.urlPart = []
+					analyzedUrl.urlPart = [urlPart]
+					analyzedUrls.put(holder.originalUrl, analyzedUrl)
+				}
+				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf > PARAMETER_THRESHOLD) {
+					analyzedUrls.get(holder.originalUrl).staticParts.add(urlPart)
+				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf > PARAMETER_THRESHOLD) {
+					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
+					analyzedUrl.staticParts = [urlPart]
 					analyzedUrls.put(holder.originalUrl, analyzedUrl)
 				}
 			}

@@ -17,7 +17,7 @@ class Main {
 			new File(Main
 				.class
 				.getClassLoader()
-				.getResource("test-data-1.csv")
+				.getResource("test-data-2.csv")
 				.toURI())
 		}))
 		discovery.discover()
