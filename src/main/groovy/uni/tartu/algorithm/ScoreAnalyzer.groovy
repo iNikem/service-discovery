@@ -1,8 +1,6 @@
 package uni.tartu.algorithm
 
 import uni.tartu.storage.AnalyzedUrlData
-import uni.tartu.storage.RawUrlData
-import uni.tartu.storage.WordIdHolderData
 
 /**
  * author: lkokhreidze

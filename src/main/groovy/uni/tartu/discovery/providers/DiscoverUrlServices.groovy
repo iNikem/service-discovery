@@ -7,7 +7,7 @@ import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
 import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.RawUrlData
-import uni.tartu.storage.WordIdHolderData
+import uni.tartu.storage.UrlInfoData
 
 import static uni.tartu.algorithm.DelimiterAnalyzer.getInstance
 import static uni.tartu.algorithm.MiniMapReduce.put
@@ -58,16 +58,9 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 					def keys = getKey(it as String)
 					if (keys) {
 						def urlPart = keys[0],
-							 urlId = keys[1] as int
-						def originalUrl = originalServices.get(urlId).rawUrl
-						def bpa = split(urlPart, ";")
-						if (bpa.length < 2) {
-							putUrlIdHolder('null', new WordIdHolderData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
-						} else {
-							putUrlIdHolder(bpa[1], new WordIdHolderData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
-						}
-
-						put((urlPart), 1)
+							 urlId = keys[1] as int,
+						    parts = split(urlPart, ";")
+						populate(parts, urlPart, urlId, originalServices.get(urlId).rawUrl)
 					}
 				}
 			}, { map, k, v ->
@@ -145,5 +138,10 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 		this.initialGroups = analyzer
 			.initialGroups.collectEntries { k, v -> [(k): v.collect { clean(it, analyzer.getDelimiter(k)) }]
 		} as Map<String, List<String>>
+	}
+
+	private static void populate(String[] parts, String urlPart, int urlId, String originalUrl) {
+		parts.length < 2 ? putUrlIdHolder('null', new UrlInfoData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl)) : putUrlIdHolder(parts[1], new UrlInfoData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
+		put((urlPart), 1)
 	}
 }

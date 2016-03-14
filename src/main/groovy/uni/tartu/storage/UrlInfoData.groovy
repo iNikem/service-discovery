@@ -6,7 +6,7 @@ package uni.tartu.storage
  * time: 7:15 PM
  **/
 
-class WordIdHolderData {
+class UrlInfoData {
 	public String urlPart
 	public int urlId
 	public String originalUrl

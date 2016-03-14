@@ -1,7 +1,7 @@
 package uni.tartu.algorithm
 
 import uni.tartu.storage.AnalyzedUrlData
-import uni.tartu.storage.WordIdHolderData
+import uni.tartu.storage.UrlInfoData
 
 import static uni.tartu.algorithm.MiniMapReduce.*
 
@@ -46,7 +46,7 @@ class TfIdf {
 			def urlPart = ids[0]
 			def res = wordIdHolder.get(urlPart)
 			res.each {
-				def holder = it as WordIdHolderData
+				def holder = it as UrlInfoData
 				def urlId = holder.urlId
 				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= PARAMETER_THRESHOLD) {
 					analyzedUrls.get(holder.originalUrl).urlPart.add(urlPart)

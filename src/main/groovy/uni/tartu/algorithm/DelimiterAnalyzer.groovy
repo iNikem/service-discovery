@@ -31,8 +31,7 @@ class DelimiterAnalyzer {
 	}
 
 	public String getDelimiter(String id) {
-		def d = analyzedDelimiters[(id).split("_")[0]]
-		d
+		analyzedDelimiters[getKey(id)]
 	}
 
 	public void build(List<RawUrlData> services) {
@@ -49,7 +48,7 @@ class DelimiterAnalyzer {
 	@SuppressWarnings("GroovyAssignabilityCheck")
 	private void analyze() {
 		initialGrouping.inject([:]) { map, k, List<String> v ->
-			k = (k as String).split("__")[0]
+			k = getKey(k)
 			map << [(k): knownDelimiters.collectEntries { key, delimiter ->
 				[(key): (v.count { it.contains(delimiter) } * 100) / v.size()]
 			}]
@@ -58,5 +57,9 @@ class DelimiterAnalyzer {
 			v.findAll { it.value > DELIMITER_CONFIDENCE_THRESHOLD }.each { delimiter = knownDelimiters[it.key] }
 			analyzedDelimiters.put(k, delimiter)
 		}
+	}
+
+	private static String getKey(String id) {
+		split(id, "__")[0]
 	}
 }

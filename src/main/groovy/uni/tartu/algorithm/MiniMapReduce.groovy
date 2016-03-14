@@ -1,8 +1,7 @@
 package uni.tartu.algorithm
 
-import com.google.common.collect.Multimap
 import groovy.transform.CompileStatic
-import uni.tartu.storage.WordIdHolderData
+import uni.tartu.storage.UrlInfoData
 import uni.tartu.storage.MultiMap
 
 /**
@@ -15,13 +14,13 @@ import uni.tartu.storage.MultiMap
 class MiniMapReduce {
 
 	private static final MultiMap wordIdHolder = new MultiMap()
-	private static final MultiMap multimap = new MultiMap()
+	private static final MultiMap dataHolder = new MultiMap()
 
 	public static void put(String key, Object value) {
-		multimap.put(key, value)
+		dataHolder.put(key, value)
 	}
 
-	public static void putUrlIdHolder(String urlPart, WordIdHolderData data) {
+	public static void putUrlIdHolder(String urlPart, UrlInfoData data) {
 		wordIdHolder.put(urlPart, data)
 	}
 
@@ -31,9 +30,9 @@ class MiniMapReduce {
 
 	static class Mapper {
 		public static def map(Map what, Closure how) {
-			multimap.clear()
+			dataHolder.clear()
 			what.collect how
-			multimap
+			dataHolder
 		}
 	}
 
