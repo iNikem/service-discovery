@@ -1,6 +1,7 @@
 package uni.tartu.discovery.providers
 
 import uni.tartu.algorithm.DelimiterAnalyzer
+import uni.tartu.algorithm.RegexGenerator
 import uni.tartu.algorithm.TfIdf
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
@@ -103,14 +104,8 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				map
 			}))
 		def scores = tfIdf.calculate(this.grouped).values().toList()
-		def staticParts = scores.findAll { it.score > PARAMETER_THRESHOLD },
-		 	 dynamicParts = scores.findAll { it.score <= PARAMETER_THRESHOLD }
-		def actualServices = staticParts.collect {
-			it.staticParts
-		}.flatten().unique().size()
-		def reducePercentage = 100 - ((actualServices * 100) / originalServices.size())
-		println "Actual Service Size is: $actualServices. Original services reduced by $reducePercentage"
-		dump("/Users/lkokhreidze/Desktop", staticParts, dynamicParts)
+		def regexGenerator = new RegexGenerator(scores)
+		regexGenerator.generate()
 		scores
 	}
 

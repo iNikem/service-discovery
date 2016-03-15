@@ -44,8 +44,7 @@ class TfIdf {
 			def ids = (k as String).split(";")
 			def id = ids[1]
 			def urlPart = ids[0]
-			def res = wordIdHolder.get(urlPart)
-			res.each {
+			wordIdHolder.get(urlPart).each {
 				def holder = it as UrlInfoData
 				def urlId = holder.urlId
 				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= PARAMETER_THRESHOLD) {

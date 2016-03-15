@@ -22,7 +22,7 @@ class StringUtils {
 
 	public static String[] getKey(String str) {
 		int i = str.lastIndexOf("__")
-		if(i == -1) {
+		if (i == -1) {
 			return []
 		}
 		def res = [str.substring(0, i), str.substring(i + 2)]
@@ -71,6 +71,18 @@ class StringUtils {
 			}
 		}
 		return str
+	}
+
+	public static String replace(String oldStr, String newStr, String input) {
+		StringBuilder sb = new StringBuilder();
+		int i;
+		int prev = 0;
+		while ((i = input.indexOf(oldStr, prev)) >= 0) {
+			sb.append(input.substring(prev, i)).append(newStr);
+			prev = i + oldStr.length();
+		}
+		sb.append(input.substring(prev));
+		return sb.toString();
 	}
 
 }
