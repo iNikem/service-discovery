@@ -14,7 +14,7 @@ class TextDumper {
 
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator")
 
-	public static void dump(String dir, List<Object>... set) {
+	public static void dump(String dir = '/Users/lkokhreidze/Desktop', List<Object>... set) {
 		set.eachWithIndex { List<Object> data, i ->
 			def file = new File("$dir/data-${i}.txt".toString()),
 				 path = file.getAbsolutePath()

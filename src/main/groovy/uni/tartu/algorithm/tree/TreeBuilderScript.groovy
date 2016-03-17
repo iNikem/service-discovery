@@ -7,7 +7,7 @@ package uni.tartu.algorithm.tree
  **/
 
 abstract class TreeBuilderScript extends Script {
-	static def get(def me) {
-		return me
+	static def get(def node) {
+		return node
 	}
 }
