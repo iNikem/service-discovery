@@ -1,5 +1,7 @@
 package uni.tartu.utils
 
+import static uni.tartu.utils.StringUtils.split
+
 /**
  * author: lkokhreidze
  * date: 2/22/16
@@ -8,6 +10,10 @@ package uni.tartu.utils
 
 class CollectionUtils {
 	private CollectionUtils() {}
+
+	public static List<String> transform(List<String> urls, String delimiter) {
+		urls.collect { split(it, delimiter).collect { """'$it'""" }.join('.') }
+	}
 
 	public static void init() {
 		initListHelpers()
