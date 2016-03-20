@@ -17,6 +17,6 @@ class Discovery {
 		discoveryProviders.get(DiscoveryType.URL_DISCOVERY)
 			.group()
 			.analyze()
-			.toJsonTree()
+			.toTree()
 	}
 }

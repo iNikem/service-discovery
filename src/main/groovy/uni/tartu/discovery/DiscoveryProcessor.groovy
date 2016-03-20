@@ -15,7 +15,7 @@ public interface DiscoveryProcessor {
 
 	public DiscoveryType getType()
 
-	public List<Map> toJsonTree()
+	public List<Map> toTree()
 
 	public void init(List<String> services)
 }

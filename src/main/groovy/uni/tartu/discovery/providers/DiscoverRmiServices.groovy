@@ -33,7 +33,7 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	List<Map> toJsonTree() {
+	List<Map> toTree() {
 		return null
 	}
 

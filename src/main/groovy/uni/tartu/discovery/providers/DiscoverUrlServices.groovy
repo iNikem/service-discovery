@@ -11,7 +11,6 @@ import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.RawUrlData
 import uni.tartu.storage.UrlInfoData
 
-import static uni.tartu.algorithm.DelimiterAnalyzer.getInstance
 import static uni.tartu.algorithm.MiniMapReduce.put
 import static uni.tartu.algorithm.MiniMapReduce.putUrlIdHolder
 import static uni.tartu.algorithm.TfIdf.*
@@ -27,7 +26,7 @@ import static uni.tartu.utils.StringUtils.*
 @DiscoveryProvider
 class DiscoverUrlServices implements DiscoveryProcessor {
 
-	private final DelimiterAnalyzer delimiterAnalyzer = getInstance()
+	private final DelimiterAnalyzer delimiterAnalyzer = DelimiterAnalyzer.getInstance()
 
 	private final Map<Integer, RawUrlData> originalServices = new HashMap<Integer, RawUrlData>()
 	private Map<String, List<String>> initialGroups
@@ -117,7 +116,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	List<Map> toJsonTree() {
+	List<Map> toTree() {
 		def urlReducer = new UrlReducer(scores)
 		def treeBuilder = new TreeBuilder()
 		urlReducer.reduce().collect { k, v ->
