@@ -1,8 +1,9 @@
 package uni.tartu.discovery.providers
 
 import uni.tartu.algorithm.DelimiterAnalyzer
-import uni.tartu.algorithm.RegexGenerator
 import uni.tartu.algorithm.TfIdf
+import uni.tartu.algorithm.UrlReducer
+import uni.tartu.algorithm.tree.TreeBuilder
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
@@ -14,8 +15,8 @@ import static uni.tartu.algorithm.DelimiterAnalyzer.getInstance
 import static uni.tartu.algorithm.MiniMapReduce.put
 import static uni.tartu.algorithm.MiniMapReduce.putUrlIdHolder
 import static uni.tartu.algorithm.TfIdf.*
+import static uni.tartu.utils.CollectionUtils.transform
 import static uni.tartu.utils.StringUtils.*
-import static uni.tartu.utils.TextDumper.dump
 
 /**
  * author: lkokhreidze
@@ -26,17 +27,12 @@ import static uni.tartu.utils.TextDumper.dump
 @DiscoveryProvider
 class DiscoverUrlServices implements DiscoveryProcessor {
 
-	private final DelimiterAnalyzer analyzer = getInstance()
-
-	/**
-	 * The most optimal threshold value to discover parameters in the url.
-	 * TODO: Need to figure out more smart way to discover threshold.
-	 **/
-	private static float PARAMETER_THRESHOLD = 0.001
+	private final DelimiterAnalyzer delimiterAnalyzer = getInstance()
 
 	private final Map<Integer, RawUrlData> originalServices = new HashMap<Integer, RawUrlData>()
 	private Map<String, List<String>> initialGroups
 	private Map<?, ?> grouped
+	private List<AnalyzedUrlData> scores
 
 	@Override
 	int getSize() {
@@ -44,7 +40,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	List<AnalyzedUrlData> analyze() {
+	DiscoveryProcessor analyze() {
 		TfIdf tfIdf = new TfIdf(
 			/**
 			 * first MapReduce job closure specification
@@ -60,7 +56,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 					if (keys) {
 						def urlPart = keys[0],
 							 urlId = keys[1] as int,
-						    parts = split(urlPart, ";")
+							 parts = split(urlPart, ";")
 						populate(parts, urlPart, urlId, originalServices.get(urlId).rawUrl)
 					}
 				}
@@ -103,17 +99,15 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				}
 				map
 			}))
-		def scores = tfIdf.calculate(this.grouped).values().toList()
-		def regexGenerator = new RegexGenerator(scores)
-		regexGenerator.generate()
-		scores
+		this.scores = tfIdf.calculate(this.grouped).values().toList()
+		this
 	}
 
 	@Override
 	DiscoveryProcessor group() {
 		this.grouped = this
 			.initialGroups
-			.collectEntries { k, v -> [(k): v.collect { split(it, analyzer.getDelimiter(k)) }] }
+			.collectEntries { k, v -> [(k): v.collect { split(it, delimiterAnalyzer.getDelimiter(k)) }] }
 		this
 	}
 
@@ -123,15 +117,25 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	}
 
 	@Override
+	List<Map> toJsonTree() {
+		def urlReducer = new UrlReducer(scores)
+		def treeBuilder = new TreeBuilder()
+		urlReducer.reduce().collect { k, v ->
+			def delimiter = this.delimiterAnalyzer.getDelimiter(k)
+			treeBuilder.transform((transform(v, delimiter)))
+		}
+	}
+
+	@Override
 	void init(List<String> services) {
 		services.findAll { it.split(';')[1].startsWith("/") }.eachWithIndex { url, i ->
 			def cleaned = clean(url)
 			def parts = cleaned.split(';')
 			originalServices.put(i, new RawUrlData(id: parts[0], rawUrl: parts[1], urlId: i))
 		}
-		analyzer.build(originalServices.values().toList())
-		this.initialGroups = analyzer
-			.initialGroups.collectEntries { k, v -> [(k): v.collect { clean(it, analyzer.getDelimiter(k)) }]
+		delimiterAnalyzer.build(originalServices.values().toList())
+		this.initialGroups = delimiterAnalyzer
+			.initialGroups.collectEntries { k, v -> [(k): v.collect { clean(it, delimiterAnalyzer.getDelimiter(k)) }]
 		} as Map<String, List<String>>
 	}
 

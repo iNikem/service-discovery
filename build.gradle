@@ -37,6 +37,7 @@ dependencies {
 		 * tomcat is included in spring boot by default */
 		exclude module: 'spring-boot-starter-tomcat'
 	}
+	compile 'org.springframework.boot:spring-boot-starter-jetty:1.3.2.RELEASE'
 	testCompile group: 'junit', name: 'junit', version: libs.junit
 }
 

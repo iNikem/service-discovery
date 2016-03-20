@@ -1,11 +1,9 @@
 package uni.tartu.algorithm
 
-import uni.tartu.algorithm.tree.TreeBuilder
 import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.MultiMap
 
 import static uni.tartu.algorithm.DelimiterAnalyzer.getInstance
-import static uni.tartu.utils.CollectionUtils.transform
 import static uni.tartu.utils.StringUtils.replace
 
 /**
@@ -14,17 +12,17 @@ import static uni.tartu.utils.StringUtils.replace
  * time: 4:53 PM
  **/
 
-class RegexGenerator {
+class UrlReducer {
 
 	private final List<AnalyzedUrlData> analyzedUrls
 
 	private final DelimiterAnalyzer delimiterAnalyzer = getInstance()
 
-	RegexGenerator(List<AnalyzedUrlData> analyzedUrls) {
+	UrlReducer(List<AnalyzedUrlData> analyzedUrls) {
 		this.analyzedUrls = analyzedUrls
 	}
 
-	public void generate() {
+	public Map reduce() {
 		def generatedRegex = new MultiMap()
 		for (AnalyzedUrlData it in this.analyzedUrls) {
 			def delimiter = delimiterAnalyzer.getDelimiter(it.accountId)
@@ -48,11 +46,7 @@ class RegexGenerator {
 		generatedRegex.each { String k, v ->
 			unique.put(k, v.unique() as List<String>)
 		}
-		def urlTreeBuild = new TreeBuilder()
-		unique.each { String k, v ->
-			def delimiter = delimiterAnalyzer.getDelimiter(k)
-			urlTreeBuild.toJsonTree(transform(v, delimiter))
-		}
+		unique
 	}
 
 }

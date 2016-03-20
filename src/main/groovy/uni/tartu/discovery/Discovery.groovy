@@ -13,10 +13,10 @@ class Discovery {
 		this.discoveryProviders = discoveryProviders
 	}
 
-	void discover() {
-		this.discoveryProviders.each { k, v ->
-			def result = v.group().analyze()
-			println "Got result from: $k, with size: ${result.size()}"
-		}
+	List<Map> discover() {
+		discoveryProviders.get(DiscoveryType.URL_DISCOVERY)
+			.group()
+			.analyze()
+			.toJsonTree()
 	}
 }

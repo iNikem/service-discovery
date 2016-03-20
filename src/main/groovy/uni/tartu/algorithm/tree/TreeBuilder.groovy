@@ -1,9 +1,6 @@
 package uni.tartu.algorithm.tree
 
-import groovy.json.JsonBuilder
 import org.codehaus.groovy.control.CompilerConfiguration
-
-import static uni.tartu.utils.TextDumper.dump
 
 /**
  * author: lkokhreidze
@@ -19,12 +16,44 @@ class TreeBuilder {
 		}
 	}
 
-	public def toJsonTree(List<String> reducedUrls) {
+	public def transform(List<String> reducedUrls) {
+		def nodes = tree(reducedUrls)
+		constructNode('/ROOT/', collectMaps(nodes), false)
+	}
+
+	private def tree(List<String> reducedUrls) {
 		def root = tree()
 		reducedUrls.each { url ->
 			root.putAll(evalMe(root, url))
 		}
-		dump([new JsonBuilder(root).toPrettyString()])
+		root
+	}
+
+	private def collectMaps(e) {
+		e.with {
+			if (!(it instanceof Map)) {
+				return []
+			}
+			it.collect { k, v ->
+				if ('children'.equals(k)) {
+					return [:]
+				}
+				def children = []
+				children.addAll(collectMaps(v))
+				constructNode(k as String, children)
+			}
+		}
+	}
+
+	private def constructNode(String k, List children, boolean collapsed = true) {
+		def node = tree()
+		node.text.name = k
+		if (children) {
+			node.HTMLclass = 'the-parent'
+			node.children = children
+			node.collapsed = collapsed
+		}
+		node
 	}
 
 	private Map evalMe(def root, String nodes) {

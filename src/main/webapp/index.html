@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Service Discovery</title>
+    <link rel="stylesheet" href="css/Treant.css">
+    <link rel="stylesheet" href="css/collapsable.css">
+
+    <link rel="stylesheet" href="css/perfect-scrollbar.css">
+
+</head>
+<body>
+<div class="chart" id="url-tree"></div>
+<script src="js/raphael.js"></script>
+<script src="js/Treant.js"></script>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.easing.js"></script>
+
+<!--<script src="js/perfect-scrollbar.js"></script>-->
+<!--<script src="js/collapsable.js"></script>-->
+<script>
+    $.ajax('api/discovery/services/tree', {
+                success: function (data) {
+                    var chart_config = {
+                        chart: {
+                            // animateOnInit: false,
+                            // container: "#url-tree",
+                            // levelSeparation: 25,
+                            // siblingSeparation: 70,
+                            // subTeeSeparation: 70,
+                            // nodeAlign: "BOTTOM",
+                            // // scrollbar: "fancy",
+                            // padding: 35,
+                            container: "#url-tree",
+                            levelSeparation: 70,
+                            siblingSeparation: 60,
+                            nodeAlign: "BOTTOM",
+                            connectors: {
+                                type: "curve",
+                                style: {
+                                    "stroke-width": 2,
+                                    "stroke": "#ccc",
+                                    "stroke-dasharray": "--",
+                                    "arrow-end": "classic-wide-long"
+                                }
+                            },
+                            node: {
+                                collapsable: true
+                            }
+                        },
+                        nodeStructure: data[0]
+                    };
+                    new Treant(chart_config);
+                }
+            }
+    );
+
+</script>
+</body>
+</html>

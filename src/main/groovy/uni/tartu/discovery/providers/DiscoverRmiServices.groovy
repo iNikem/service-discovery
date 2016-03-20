@@ -22,14 +22,19 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	List<AnalyzedUrlData> analyze() {
+	DiscoveryProcessor analyze() {
 		println "Hello sir, this is RMI analyzer"
-		[]
+		this
 	}
 
 	@Override
 	DiscoveryType getType() {
 		DiscoveryType.RMI_DISCOVERY
+	}
+
+	@Override
+	List<Map> toJsonTree() {
+		return null
 	}
 
 	@Override
