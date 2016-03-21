@@ -17,11 +17,6 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 	private Map<?, ?> grouped
 
 	@Override
-	int getSize() {
-		this.services.size()
-	}
-
-	@Override
 	DiscoveryProcessor analyze() {
 		println "Hello sir, this is RMI analyzer"
 		this

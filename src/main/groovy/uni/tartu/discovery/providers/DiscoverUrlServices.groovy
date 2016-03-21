@@ -34,11 +34,6 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	private List<AnalyzedUrlData> scores
 
 	@Override
-	int getSize() {
-		this.initialGroups.size()
-	}
-
-	@Override
 	DiscoveryProcessor analyze() {
 		TfIdf tfIdf = new TfIdf(
 			/**
@@ -99,7 +94,6 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				map
 			}))
 		this.scores = tfIdf.calculate(this.grouped).values().toList()
-		s = ''
 		this
 	}
 

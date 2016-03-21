@@ -7,7 +7,6 @@ package uni.tartu.discovery
  **/
 
 public interface DiscoveryProcessor {
-	public int getSize()
 
 	public DiscoveryProcessor analyze()
 
