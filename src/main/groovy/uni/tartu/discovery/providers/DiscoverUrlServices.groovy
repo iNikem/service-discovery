@@ -99,6 +99,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				map
 			}))
 		this.scores = tfIdf.calculate(this.grouped).values().toList()
+		s = ''
 		this
 	}
 
