@@ -120,8 +120,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 		def urlReducer = new UrlReducer(scores)
 		def treeBuilder = new TreeBuilder()
 		urlReducer.reduce().collect { k, v ->
-			def delimiter = this.delimiterAnalyzer.getDelimiter(k)
-			treeBuilder.transform((transform(v, delimiter)))
+			treeBuilder.transform(transform(v, this.delimiterAnalyzer.getDelimiter(k)))
 		}
 	}
 

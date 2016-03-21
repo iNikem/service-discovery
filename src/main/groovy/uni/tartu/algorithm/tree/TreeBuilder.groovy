@@ -18,7 +18,7 @@ class TreeBuilder {
 
 	public def transform(List<String> reducedUrls) {
 		def nodes = tree(reducedUrls)
-		constructNode('/ROOT/', collectMaps(nodes), false)
+		constructNode('/ROOT/', collectNodes(nodes), false)
 	}
 
 	private def tree(List<String> reducedUrls) {
@@ -29,7 +29,7 @@ class TreeBuilder {
 		root
 	}
 
-	private def collectMaps(e) {
+	private def collectNodes(e) {
 		e.with {
 			if (!(it instanceof Map)) {
 				return []
@@ -39,7 +39,7 @@ class TreeBuilder {
 					return [:]
 				}
 				def children = []
-				children.addAll(collectMaps(v))
+				children.addAll(collectNodes(v))
 				constructNode(k as String, children)
 			}
 		}
