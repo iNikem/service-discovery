@@ -2,9 +2,11 @@ package uni.tartu.web
 
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uni.tartu.discovery.Discovery
 import uni.tartu.discovery.DiscoveryInitializer
+import uni.tartu.storage.ResultSetWithStats
 
 import static uni.tartu.parser.Parser.parse
 
@@ -19,12 +21,12 @@ import static uni.tartu.parser.Parser.parse
 class DiscoveryController {
 
 	@RequestMapping(value = '/services/tree', method = RequestMethod.GET)
-	public List<Map> getServiceTree() {
+	public List<ResultSetWithStats> getServiceTree(@RequestParam String id) {
 		def discovery = new Discovery(DiscoveryInitializer.getInitializerInstance().loadProviders(parse {
 			new File(Thread
 				.currentThread()
 				.getContextClassLoader()
-				.getResource('test-data-1.csv')
+				.getResource("${id}.csv")
 				.toURI())
 		}))
 		discovery.discover()

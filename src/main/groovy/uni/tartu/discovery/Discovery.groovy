@@ -1,5 +1,7 @@
 package uni.tartu.discovery
 
+import uni.tartu.storage.ResultSetWithStats
+
 /**
  * author: lkokhreidze
  * date: 2/18/16
@@ -13,7 +15,7 @@ class Discovery {
 		this.discoveryProviders = discoveryProviders
 	}
 
-	List<Map> discover() {
+	List<ResultSetWithStats> discover() {
 		discoveryProviders.get(DiscoveryType.URL_DISCOVERY)
 			.group()
 			.analyze()

@@ -9,6 +9,7 @@ import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
 import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.RawUrlData
+import uni.tartu.storage.ResultSetWithStats
 import uni.tartu.storage.UrlInfoData
 
 import static uni.tartu.algorithm.MiniMapReduce.put
@@ -111,11 +112,18 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	List<Map> toTree() {
+	List<ResultSetWithStats> toTree() {
+		def originalSize = this.originalServices.size()
 		def urlReducer = new UrlReducer(scores)
 		def treeBuilder = new TreeBuilder()
 		urlReducer.reduce().collect { k, v ->
-			treeBuilder.transform(transform(v, this.delimiterAnalyzer.getDelimiter(k)))
+			def t = transform(v, this.delimiterAnalyzer.getDelimiter(k))
+			def tSize = t.size();
+			def percentage = 100 - ((tSize * 100) / originalSize)
+			new ResultSetWithStats(services: treeBuilder.transform(t),
+				originalServices: originalSize,
+				reducedServices: tSize,
+				reducePercentage: "${percentage}%")
 		}
 	}
 

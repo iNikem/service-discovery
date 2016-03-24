@@ -26,20 +26,14 @@ class UrlReducer {
 		for (AnalyzedUrlData it in this.analyzedUrls) {
 			def delimiter = delimiterAnalyzer.getDelimiter(it.accountId)
 			def regexToInject = 'PARAMETER_PART'
-			def currentStr = null
-			if (it.urlPart.isEmpty()) {
-				reducedUrls.put(it.accountId, it.staticParts.join(delimiter))
-				break
-			}
-			it.urlPart.each { dynamic ->
-				def inj = regexToInject
-				if (currentStr) {
+			def currentStr = it.originalUrl
+			if (!it.staticParts.isEmpty() && !it.urlPart.isEmpty()) {
+				it.urlPart.each { dynamic ->
+					def inj = regexToInject
 					currentStr = replace(dynamic, inj, currentStr, delimiter)
-				} else {
-					currentStr = replace(dynamic, inj, it.originalUrl, delimiter)
 				}
+				reducedUrls.put(it.accountId, currentStr)
 			}
-			reducedUrls.put(it.accountId, currentStr)
 		}
 
 		Map<String, List<String>> unique = [:]

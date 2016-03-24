@@ -18,6 +18,6 @@ class Parser {
 		lines[1..-1].collect { line ->
 			def i = 0, values = line.split(',', -1)
 			keys.inject([:]) { m, k -> m << [(k): trim(values[i++])] }
-		}.collect { "${it.accountId};${it.serviceName}" }.filter '.html', '$'
+		}.collect { "${it.accountId};${it.serviceName}" }.filter '.html', '$', '.php', '&', '?'
 	}
 }

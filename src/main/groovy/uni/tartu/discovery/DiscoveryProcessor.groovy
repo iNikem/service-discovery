@@ -1,5 +1,7 @@
 package uni.tartu.discovery
 
+import uni.tartu.storage.ResultSetWithStats
+
 /**
  * author: lkokhreidze
  * date: 2/22/16
@@ -14,7 +16,7 @@ public interface DiscoveryProcessor {
 
 	public DiscoveryType getType()
 
-	public List<Map> toTree()
+	public List<ResultSetWithStats> toTree()
 
 	public void init(List<String> services)
 }

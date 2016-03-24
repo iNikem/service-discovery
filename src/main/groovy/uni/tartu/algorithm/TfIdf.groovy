@@ -14,6 +14,7 @@ import static uni.tartu.algorithm.MiniMapReduce.*
 class TfIdf {
 
 	private static float PARAMETER_THRESHOLD = 0.001
+	private static float IMPORTANCE_THRESHOLD = 0.003
 
 	private final Map<String, AnalyzedUrlData> analyzedUrls = new HashMap<>()
 	private FirstIteration firstIteration
@@ -63,7 +64,7 @@ class TfIdf {
 				}
 			}
 		}
-		analyzedUrls
+		analyzedUrls.findAll { it.value.score > IMPORTANCE_THRESHOLD }
 	}
 
 	static class FirstIteration {

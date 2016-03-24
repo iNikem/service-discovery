@@ -1,20 +1,14 @@
-body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td {
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    background: #fff;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
 /* optional Container STYLES */
 .chart {
     height: 1000px;
-    width: 100%;
-    margin: 15px auto;
     border: 3px solid #DDD;
     border-radius: 3px;
+}
+
+
+.container-full {
+    margin: 0 auto;
+    width: 100%;
 }
 
 .comments {
@@ -79,4 +73,14 @@ body {
 
 .Treant .node.collapsed .collapse-switch {
     background: none;
+}
+
+.navbar-brand ,.navbar-nav>li>a {
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.navbar-nav>.active>a {
+    opacity:.6;
 }

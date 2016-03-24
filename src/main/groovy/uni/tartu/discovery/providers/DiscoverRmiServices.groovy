@@ -3,7 +3,7 @@ package uni.tartu.discovery.providers
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
-import uni.tartu.storage.AnalyzedUrlData
+import uni.tartu.storage.ResultSetWithStats
 
 /**
  * author: lkokhreidze
@@ -28,7 +28,7 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	List<Map> toTree() {
+	List<ResultSetWithStats> toTree() {
 		return null
 	}
 
