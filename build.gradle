@@ -68,8 +68,8 @@ task jarjarBinks(type: Jar) {
 	}
 	manifest {
 		attributes 'Implementation-Title': 'Service Discovery',
-			'Implementation-Version': '1.7',
-			'Class-Path': 'service-discovery-all-1.7.jar'
+			'Implementation-Version': '2.1',
+			'Class-Path': 'service-discovery-all-2.1.jar'
 	}
 	baseName = project.name + '-all'
 	from configurations.releaseJars.collect { it.isDirectory() ? it : zipTree(it) }
