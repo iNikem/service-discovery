@@ -1,8 +1,10 @@
 package uni.tartu.algorithm
 
+import groovy.util.logging.Slf4j
 import uni.tartu.configuration.Configuration
 import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.UrlInfoData
+import uni.tartu.utils.TextDumper
 
 import static uni.tartu.algorithm.MiniMapReduce.*
 
@@ -12,8 +14,10 @@ import static uni.tartu.algorithm.MiniMapReduce.*
  * time: 6:33 PM
  **/
 
+@Slf4j
 class TfIdf {
 	private final Map<String, AnalyzedUrlData> analyzedUrls = new HashMap<>()
+	def sampleMap = [:]
 	private FirstIteration firstIteration
 	private SecondIteration secondIteration
 	private ThirdIteration thirdIteration
@@ -42,31 +46,42 @@ class TfIdf {
 				 N = parts[1] as int,
 				 m = parts[2] as int
 			double tfIdf = ((n / N) as double) * Math.log((D / m) as double)
+			if (D < m) {
+				System.out.println("something shitty happening, should't get negative log")
+			}
 			def ids = (k as String).split(";")
-			def id = ids[1]
 			def urlPart = ids[0]
+			def id = ids[1]
+
+			sampleMap.put(urlPart, tfIdf)
+
 			wordIdHolder.get(urlPart).each {
 				def holder = it as UrlInfoData
 				def urlId = holder.urlId
-				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= parameterThreshold) {
+				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
 					analyzedUrls.get(holder.originalUrl).urlPart.add(urlPart)
 				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= parameterThreshold) {
-					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
-					analyzedUrl.urlPart = [urlPart]
-					analyzedUrls.put(holder.originalUrl, analyzedUrl)
-				}
-				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
-					analyzedUrls.get(holder.originalUrl).staticParts.add(urlPart)
-				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
 					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
 					analyzedUrl.staticParts = [urlPart]
 					analyzedUrls.put(holder.originalUrl, analyzedUrl)
 				}
+				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= parameterThreshold) {
+					analyzedUrls.get(holder.originalUrl).staticParts.add(urlPart)
+				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
+					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
+					analyzedUrl.urlPart = [urlPart]
+					analyzedUrls.put(holder.originalUrl, analyzedUrl)
+				}
 			}
 		}
+		TextDumper.dump(
+			sampleMap.findAll { k, v -> v < parameterThreshold }.collect { k, v -> "$k ======= $v" },
+		)
 		if (importanceThreshold > 0) {
 			return analyzedUrls.findAll { it.value.score > importanceThreshold }
 		}
+
+
 		analyzedUrls
 	}
 

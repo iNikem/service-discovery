@@ -30,7 +30,6 @@ class StringUtils {
 	}
 
 	/**
-	 * TODO: in some cases proper filtering is not performed, find out why
 	 * performs initial and final data maintenance.
 	 * removes params from last index of separator.
 	 * @param str - raw url data
@@ -83,7 +82,18 @@ class StringUtils {
 			prev = i + oldStr.length()
 		}
 		sb.append(input.substring(prev))
-		return sb.toString()
+		String replaced = sb.toString()
+		String dd = delimiter + delimiter
+		if (replaced.startsWith(delimiter)) {
+			replaced = replaced.replaceFirst(delimiter, "")
+		}
+		if (replaced.contains(dd)) {
+			replaced = replaced.replace(dd, delimiter)
+		}
+		if (replaced.endsWith(delimiter)) {
+			replaced = replaced.substring(0, replaced.lastIndexOf(delimiter))
+		}
+		return replaced
 	}
 
 }

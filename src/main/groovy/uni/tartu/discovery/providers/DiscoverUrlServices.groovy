@@ -1,6 +1,7 @@
 package uni.tartu.discovery.providers
 
 import uni.tartu.algorithm.DelimiterAnalyzer
+import uni.tartu.algorithm.ServiceGrouping
 import uni.tartu.algorithm.TfIdf
 import uni.tartu.algorithm.UrlReducer
 import uni.tartu.configuration.Configuration
@@ -44,16 +45,20 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			FirstIteration.build({ k, v ->
 				v.collect { i ->
 					i.collect { j ->
-						def keys = getKey(k as String)
-						j.equals(keys[0]) ?: "${keys[0]};${j}__${keys[1]}".toString()
+						"${k};${j}".toString()
 					}
 				}.flatten().each {
-					def keys = getKey(it as String)
-					if (keys) {
-						def urlPart = keys[0],
-							 urlId = keys[1] as int,
-							 parts = split(urlPart, ";")
-						populate(parts, urlPart, urlId, originalServices.get(urlId).rawUrl)
+					def parts = split(it, ";")
+					if (parts.size() >= 2) {
+						def idPart = parts[0],
+							 valuePart = parts[1]
+						def keys = getKey(valuePart)
+						if (keys) {
+							def urlPart = keys[0],
+								 urlId = keys[1] as int
+							def newKey = "${urlPart};${idPart}".toString()
+							populate(newKey, urlPart, urlId, originalServices.get(urlId).rawUrl)
+						}
 					}
 				}
 			}, { map, k, v ->
@@ -81,21 +86,23 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			 * third MapReduce job closure specification
 			 **/
 			ThirdIteration.build({ k, v ->
-				def parts = (k as String).split(";")
-				put((parts[1]), ("${v};1;${parts[0] ?: 'null'}"))
+				def parts = (k as String).split(";"),
+					 id = parts[1],
+					 urlPart = parts[0] ?: 'null'
+				put((urlPart), ("$id;${v};1"))
 			}, { map, k, v ->
 				def m = v.sum {
-					(it as String).split(";")[2] as int
+					(it as String).split(";")[3] as int
 				}
 				v.flatten().each {
 					def parts = (it as String).split(";"),
-						 key = "${k};${parts[3]}" as String,
-						 val = "${parts[0]};${parts[1]};$m" as String
+						 key = "${k};${parts[0]}" as String,
+						 val = "${parts[1]};${parts[2]};$m" as String
 					map << [(key): (val)]
 				}
 				map
 			}))
-		def D = this.originalServices.size()
+		def D = this.grouped.size()
 		this.scores = tfIdf.calculate(grouped, D, configuration).values().toList()
 		this
 	}
@@ -110,9 +117,17 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	@Override
 	DiscoveryProcessor group() {
 		this.grouped = initialGroups.collectEntries { k, v ->
-			def d = delimiterAnalyzer.getDelimiter(k)
-			def res = v.collect { split(it, d) }
-			[(k): res]
+			def result = v.collect { url ->
+				def parts = getKey(url)
+				def urlId = parts[1]
+				split(url, delimiterAnalyzer.getDelimiter(k)).collect { part ->
+					if (part.contains("__$urlId".toString())) {
+						return part
+					}
+					"${part}__$urlId".toString()
+				}
+			}
+			[(k): result]
 		}
 		this
 	}
@@ -125,7 +140,9 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	@Override
 	void init(List<String> services, Configuration configuration) {
 		this.configuration = configuration
+		def serviceGrouping = new ServiceGrouping(services.size())
 		services.findAll { it.split(';')[1].startsWith("/") }.eachWithIndex { url, i ->
+			def collectionId = serviceGrouping.generateGroupingId()
 			def cleaned = clean(url)
 			def parts = cleaned.split(';')
 			if (parts.size() > 1) {
@@ -133,7 +150,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				if (!currentProcessId) {
 					currentProcessId = id
 				}
-				originalServices.put(i, new RawUrlData(id: id, rawUrl: parts[1], urlId: i))
+				originalServices.put(i, new RawUrlData(id: id, rawUrl: parts[1], urlId: i, collectionId: collectionId))
 			}
 		}
 		delimiterAnalyzer.build(originalServices.values().toList())
@@ -150,8 +167,8 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	}
 
 	//TODO find out why we are loosing adyenUrlGenerator service
-	private static void populate(String[] parts, String urlPart, int urlId, String originalUrl) {
-		parts.length < 2 ? putUrlIdHolder('null', new UrlInfoData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl)) : putUrlIdHolder(parts[1], new UrlInfoData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
-		put((urlPart), 1)
+	private static void populate(String newKey, String urlPart, int urlId, String originalUrl) {
+		putUrlIdHolder(urlPart, new UrlInfoData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
+		put((newKey), 1)
 	}
 }

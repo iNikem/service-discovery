@@ -14,7 +14,6 @@ class Parser {
 
 	private static final List<String> pollutedUrls = []
 
-	//TODO fix this
 	public static List<String> parse(Closure<File> what) {
 		pollutedUrls.clear()
 		CollectionUtils.init()
@@ -26,6 +25,7 @@ class Parser {
 		}.collect {
 			"${it.accountId};${it.serviceName}"
 		}
+		checkValidity(records)
 		def polluted = records.polluted() as List<String>
 		def clean = records.clean() as List<String>
 		pollutedUrls.addAll(polluted)
@@ -33,6 +33,7 @@ class Parser {
 	}
 
 	public static List<String> parse(String id, List<String> records) {
+		checkValidity(records)
 		pollutedUrls.clear()
 		CollectionUtils.init()
 		pollutedUrls.addAll(records.polluted() as List<String>)
@@ -41,5 +42,11 @@ class Parser {
 
 	public static getPollutedUrls() {
 		pollutedUrls
+	}
+
+	private static def checkValidity(def records) {
+		if (records.size() < 1000) {
+			throw new RuntimeException("I can't work with the data less than a 1000 services")
+		}
 	}
 }

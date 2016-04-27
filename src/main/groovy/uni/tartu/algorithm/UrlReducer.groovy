@@ -28,7 +28,7 @@ class UrlReducer {
 			def currentStr = it.originalUrl
 			if (!it.staticParts.isEmpty() && !it.urlPart.isEmpty()) {
 				it.urlPart.each { dynamic ->
-					def inj = regexToInject
+					def inj = delimiter + regexToInject + delimiter
 					currentStr = replace(dynamic, inj, currentStr, delimiter)
 				}
 				reducedUrls.add(currentStr)

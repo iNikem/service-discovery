@@ -11,6 +11,7 @@ class RawUrlData {
 	public String id
 	public int urlId
 	public String rawUrl
+	public int collectionId
 
 	@Override
 	public String toString() {

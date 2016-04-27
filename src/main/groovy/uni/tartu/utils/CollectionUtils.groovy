@@ -21,12 +21,12 @@ class CollectionUtils {
 
 	private static void initListHelpers() {
 		List.metaClass.clean {
-			delegate.removeAll { String entry -> ['.html', '$', '.php', '.js', '.txt', '.css', '.jtp', '.ico', '.gif', '.text'].any { entry.contains(it) } }
+			delegate.removeAll { String entry -> ['.html', '$', '.php', '.js', '.txt', '.css', '.jtp', '.ico', '.gif', '.text', '.pdf'].any { entry.contains(it) } }
 			delegate
 		}
 
 		List.metaClass.polluted {
-			delegate.findAll { String entry -> ['.html', '$', '.php', '.js', '.txt', '.css', '.jtp', '.ico', '.gif', '.text'].any { entry.contains(it) } }
+			delegate.findAll { String entry -> ['.html', '$', '.php', '.js', '.txt', '.css', '.jtp', '.ico', '.gif', '.text', '.pdf'].any { entry.contains(it) } }
 		}
 	}
 }
