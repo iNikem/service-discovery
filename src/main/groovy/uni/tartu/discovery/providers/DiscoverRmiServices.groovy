@@ -1,5 +1,6 @@
 package uni.tartu.discovery.providers
 
+import groovy.util.logging.Slf4j
 import uni.tartu.configuration.Configuration
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
@@ -12,6 +13,7 @@ import uni.tartu.storage.IntermediateResultSet
  * time: 8:04 PM
  **/
 
+@Slf4j
 @DiscoveryProvider
 class DiscoverRmiServices implements DiscoveryProcessor {
 	private List<String> ignoredServices
@@ -19,12 +21,13 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 
 	@Override
 	DiscoveryProcessor analyze() {
-		println "Hello sir, this is RMI analyzer"
+		log.info("started analyzing phase for controller based services")
 		this
 	}
 
 	@Override
 	IntermediateResultSet reduce() {
+		log.info("started reduction phase for controller based services")
 		def resultSet = new IntermediateResultSet(currentProcessId, ignoredServices.size(), [], getType())
 		resultSet.setIgnoredServices(ignoredServices)
 		resultSet
@@ -37,11 +40,13 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 
 	@Override
 	DiscoveryProcessor group() {
+		log.info("started grouping phase for controller based services")
 		this
 	}
 
 	@Override
 	void init(List<String> services, Configuration configuration) {
+		log.info("started initialization phase for controller based services")
 		this.ignoredServices = services.findAll {
 			def parts = it.split(';')
 			if (!currentProcessId) {

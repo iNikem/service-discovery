@@ -4,7 +4,6 @@ import groovy.util.logging.Slf4j
 import uni.tartu.configuration.Configuration
 import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.UrlInfoData
-import uni.tartu.utils.TextDumper
 
 import static uni.tartu.algorithm.MiniMapReduce.*
 
@@ -17,7 +16,6 @@ import static uni.tartu.algorithm.MiniMapReduce.*
 @Slf4j
 class TfIdf {
 	private final Map<String, AnalyzedUrlData> analyzedUrls = new HashMap<>()
-	def sampleMap = [:]
 	private FirstIteration firstIteration
 	private SecondIteration secondIteration
 	private ThirdIteration thirdIteration
@@ -34,11 +32,9 @@ class TfIdf {
 	}
 
 	private Map<String, AnalyzedUrlData> calculateTfIdf(Map data, long D, Configuration configuration) {
+		log.info("started calculating TF-IDF score")
 		def parameterThreshold = configuration.getParameterThreshold()
 		def importanceThreshold = configuration.getImportanceThreshold()
-
-		System.out.println(parameterThreshold)
-		System.out.println(importanceThreshold)
 		def wordIdHolder = getUrlIdHolders()
 		data.each { k, v ->
 			def parts = (v as String).split(";"),
@@ -47,14 +43,11 @@ class TfIdf {
 				 m = parts[2] as int
 			double tfIdf = ((n / N) as double) * Math.log((D / m) as double)
 			if (D < m) {
-				System.out.println("something shitty happening, should't get negative log")
+				log.warn("something shitty happening, should't get negative log")
 			}
 			def ids = (k as String).split(";")
 			def urlPart = ids[0]
 			def id = ids[1]
-
-			sampleMap.put(urlPart, tfIdf)
-
 			wordIdHolder.get(urlPart).each {
 				def holder = it as UrlInfoData
 				def urlId = holder.urlId
@@ -74,14 +67,9 @@ class TfIdf {
 				}
 			}
 		}
-		TextDumper.dump(
-			sampleMap.findAll { k, v -> v < parameterThreshold }.collect { k, v -> "$k ======= $v" },
-		)
 		if (importanceThreshold > 0) {
 			return analyzedUrls.findAll { it.value.score > importanceThreshold }
 		}
-
-
 		analyzedUrls
 	}
 

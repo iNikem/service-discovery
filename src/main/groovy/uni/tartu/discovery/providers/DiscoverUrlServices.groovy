@@ -1,5 +1,6 @@
 package uni.tartu.discovery.providers
 
+import groovy.util.logging.Slf4j
 import uni.tartu.algorithm.DelimiterAnalyzer
 import uni.tartu.algorithm.ServiceGrouping
 import uni.tartu.algorithm.TfIdf
@@ -24,6 +25,7 @@ import static uni.tartu.utils.StringUtils.*
  * time: 8:12 PM
  **/
 
+@Slf4j
 @DiscoveryProvider
 class DiscoverUrlServices implements DiscoveryProcessor {
 
@@ -38,6 +40,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 
 	@Override
 	DiscoveryProcessor analyze() {
+		log.info("started analyzing phase for URL discovery")
 		TfIdf tfIdf = new TfIdf(
 			/**
 			 * first MapReduce job closure specification
@@ -109,6 +112,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 
 	@Override
 	IntermediateResultSet reduce() {
+		log.info("started reduction phase for URL discovery")
 		def originalSize = this.originalServices.size()
 		def urlReducer = new UrlReducer(scores)
 		new IntermediateResultSet(currentProcessId, originalSize, urlReducer.reduce(), getType())
@@ -116,6 +120,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 
 	@Override
 	DiscoveryProcessor group() {
+		log.info("started grouping phase for URL discovery")
 		this.grouped = initialGroups.collectEntries { k, v ->
 			def result = v.collect { url ->
 				def parts = getKey(url)
@@ -139,6 +144,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 
 	@Override
 	void init(List<String> services, Configuration configuration) {
+		log.info("started initialisation phase for URL discovery")
 		this.configuration = configuration
 		def serviceGrouping = new ServiceGrouping(services.size())
 		services.findAll { it.split(';')[1].startsWith("/") }.eachWithIndex { url, i ->
@@ -166,7 +172,6 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 		} as Map<String, List<String>>
 	}
 
-	//TODO find out why we are loosing adyenUrlGenerator service
 	private static void populate(String newKey, String urlPart, int urlId, String originalUrl) {
 		putUrlIdHolder(urlPart, new UrlInfoData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
 		put((newKey), 1)
