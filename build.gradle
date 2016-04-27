@@ -1,5 +1,5 @@
 group 'service-discovery'
-version '1.9'
+version '2.1'
 
 apply from: 'libs.gradle'
 apply plugin: 'groovy'
@@ -44,19 +44,22 @@ dependencies {
 	}
 	compile 'org.springframework.boot:spring-boot-starter-jetty:1.3.2.RELEASE'
 	testCompile group: 'junit', name: 'junit', version: libs.junit
-	releaseJars "org.codehaus.groovy:groovy-all:${libs.groovy}"
 	releaseJars "org.reflections:reflections:0.9.10"
-
 }
 
 task run(dependsOn: 'classes', type: JavaExec) {
 	main = 'uni.tartu.Main'
 	classpath = sourceSets.main.runtimeClasspath
 }
-//create a single Jar with all dependencies
+//create a single Jar with only required dependencies
 task jarjarBinks(type: Jar) {
 	sourceSets {
 		main {
+			groovy {
+				exclude '**/web/**'
+				exclude '**/Application.java'
+				exclude '**/Main.groovy'
+			}
 			resources {
 				exclude '**/*.csv'
 				exclude '**/*.properties'

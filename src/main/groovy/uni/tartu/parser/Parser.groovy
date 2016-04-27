@@ -25,28 +25,27 @@ class Parser {
 		}.collect {
 			"${it.accountId};${it.serviceName}"
 		}
-		checkValidity(records)
 		def polluted = records.polluted() as List<String>
 		def clean = records.clean() as List<String>
 		pollutedUrls.addAll(polluted)
-		clean
+		checkValidity(clean)
 	}
 
 	public static List<String> parse(String id, List<String> records) {
-		checkValidity(records)
 		pollutedUrls.clear()
 		CollectionUtils.init()
 		pollutedUrls.addAll(records.polluted() as List<String>)
-		records.clean().collect { "$id;$it".toString() }
+		checkValidity(records.clean().collect { "$id;$it".toString() })
 	}
 
 	public static getPollutedUrls() {
 		pollutedUrls
 	}
 
-	private static def checkValidity(def records) {
+	private static List<String> checkValidity(def records) {
 		if (records.size() < 1000) {
-			throw new RuntimeException("I can't work with the data less than a 1000 services")
+			throw new RuntimeException("After initial data cleaning, got result with less than 1000 records. Can't work with this amount")
 		}
+		return records
 	}
 }
