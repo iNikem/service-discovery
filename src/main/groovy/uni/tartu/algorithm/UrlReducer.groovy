@@ -1,7 +1,6 @@
 package uni.tartu.algorithm
 
 import uni.tartu.storage.AnalyzedUrlData
-import uni.tartu.storage.MultiMap
 
 import static uni.tartu.utils.StringUtils.replace
 
@@ -21,8 +20,8 @@ class UrlReducer {
 		this.analyzedUrls = analyzedUrls
 	}
 
-	public Map reduce() {
-		def reducedUrls = new MultiMap()
+	public List<String> reduce() {
+		List<String> reducedUrls = []
 		for (AnalyzedUrlData it in this.analyzedUrls) {
 			def delimiter = delimiterAnalyzer.getDelimiter(it.accountId)
 			def regexToInject = 'PARAMETER_PART'
@@ -32,15 +31,10 @@ class UrlReducer {
 					def inj = regexToInject
 					currentStr = replace(dynamic, inj, currentStr, delimiter)
 				}
-				reducedUrls.put(it.accountId, currentStr)
+				reducedUrls.add(currentStr)
 			}
 		}
-
-		Map<String, List<String>> unique = [:]
-		reducedUrls.each { String k, v ->
-			unique.put(k, v.unique() as List<String>)
-		}
-		unique
+		reducedUrls.collect().unique()
 	}
 
 }

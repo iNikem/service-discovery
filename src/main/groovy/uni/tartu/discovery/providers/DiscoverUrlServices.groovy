@@ -3,19 +3,18 @@ package uni.tartu.discovery.providers
 import uni.tartu.algorithm.DelimiterAnalyzer
 import uni.tartu.algorithm.TfIdf
 import uni.tartu.algorithm.UrlReducer
-import uni.tartu.algorithm.tree.TreeBuilder
+import uni.tartu.configuration.Configuration
 import uni.tartu.discovery.DiscoveryProcessor
 import uni.tartu.discovery.DiscoveryProvider
 import uni.tartu.discovery.DiscoveryType
 import uni.tartu.storage.AnalyzedUrlData
+import uni.tartu.storage.IntermediateResultSet
 import uni.tartu.storage.RawUrlData
-import uni.tartu.storage.ResultSetWithStats
 import uni.tartu.storage.UrlInfoData
 
 import static uni.tartu.algorithm.MiniMapReduce.put
 import static uni.tartu.algorithm.MiniMapReduce.putUrlIdHolder
 import static uni.tartu.algorithm.TfIdf.*
-import static uni.tartu.utils.CollectionUtils.transform
 import static uni.tartu.utils.StringUtils.*
 
 /**
@@ -33,6 +32,8 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	private Map<String, List<String>> initialGroups
 	private Map<?, ?> grouped
 	private List<AnalyzedUrlData> scores
+	private String currentProcessId
+	private Configuration configuration
 
 	@Override
 	DiscoveryProcessor analyze() {
@@ -94,15 +95,25 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 				}
 				map
 			}))
-		this.scores = tfIdf.calculate(this.grouped).values().toList()
+		def D = this.originalServices.size()
+		this.scores = tfIdf.calculate(grouped, D, configuration).values().toList()
 		this
 	}
 
 	@Override
+	IntermediateResultSet reduce() {
+		def originalSize = this.originalServices.size()
+		def urlReducer = new UrlReducer(scores)
+		new IntermediateResultSet(currentProcessId, originalSize, urlReducer.reduce(), getType())
+	}
+
+	@Override
 	DiscoveryProcessor group() {
-		this.grouped = this
-			.initialGroups
-			.collectEntries { k, v -> [(k): v.collect { split(it, delimiterAnalyzer.getDelimiter(k)) }] }
+		this.grouped = initialGroups.collectEntries { k, v ->
+			def d = delimiterAnalyzer.getDelimiter(k)
+			def res = v.collect { split(it, d) }
+			[(k): res]
+		}
 		this
 	}
 
@@ -112,34 +123,33 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	List<ResultSetWithStats> toTree() {
-		def originalSize = this.originalServices.size()
-		def urlReducer = new UrlReducer(scores)
-		def treeBuilder = new TreeBuilder()
-		urlReducer.reduce().collect { k, v ->
-			def t = transform(v, this.delimiterAnalyzer.getDelimiter(k))
-			def tSize = t.size();
-			def percentage = 100 - ((tSize * 100) / originalSize)
-			new ResultSetWithStats(services: treeBuilder.transform(t),
-				originalServices: originalSize,
-				reducedServices: tSize,
-				reducePercentage: "${percentage}%")
-		}
-	}
-
-	@Override
-	void init(List<String> services) {
+	void init(List<String> services, Configuration configuration) {
+		this.configuration = configuration
 		services.findAll { it.split(';')[1].startsWith("/") }.eachWithIndex { url, i ->
 			def cleaned = clean(url)
 			def parts = cleaned.split(';')
-			originalServices.put(i, new RawUrlData(id: parts[0], rawUrl: parts[1], urlId: i))
+			if (parts.size() > 1) {
+				def id = parts[0]
+				if (!currentProcessId) {
+					currentProcessId = id
+				}
+				originalServices.put(i, new RawUrlData(id: id, rawUrl: parts[1], urlId: i))
+			}
 		}
 		delimiterAnalyzer.build(originalServices.values().toList())
-		this.initialGroups = delimiterAnalyzer
-			.initialGroups.collectEntries { k, v -> [(k): v.collect { clean(it, delimiterAnalyzer.getDelimiter(k)) }]
+		originalServices.each { k, v ->
+			if (v.rawUrl.contains('&') || v.rawUrl.contains('?')) {
+				def key = split(v as String, ';')[0]
+				v.rawUrl = clean(v.rawUrl, delimiterAnalyzer.getDelimiter(key))
+			}
+		}
+		this.initialGroups = delimiterAnalyzer.initialGroups.collectEntries { k, v ->
+			def cleaned = v.collect { it }
+			[(k): cleaned]
 		} as Map<String, List<String>>
 	}
 
+	//TODO find out why we are loosing adyenUrlGenerator service
 	private static void populate(String[] parts, String urlPart, int urlId, String originalUrl) {
 		parts.length < 2 ? putUrlIdHolder('null', new UrlInfoData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl)) : putUrlIdHolder(parts[1], new UrlInfoData(urlPart: urlPart, urlId: urlId, originalUrl: originalUrl))
 		put((urlPart), 1)

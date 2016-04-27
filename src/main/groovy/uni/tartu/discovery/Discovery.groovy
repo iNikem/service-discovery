@@ -1,5 +1,6 @@
 package uni.tartu.discovery
 
+import uni.tartu.storage.IntermediateResultSet
 import uni.tartu.storage.ResultSetWithStats
 
 /**
@@ -15,10 +16,10 @@ class Discovery {
 		this.discoveryProviders = discoveryProviders
 	}
 
-	List<ResultSetWithStats> discover() {
-		discoveryProviders.get(DiscoveryType.URL_DISCOVERY)
-			.group()
-			.analyze()
-			.toTree()
+	ResultSetWithStats discover() {
+		def resultSet = discoveryProviders.collectEntries {
+			[(it.key): it.value.group().analyze().reduce()]
+		} as Map<DiscoveryType, IntermediateResultSet>
+		new ResultSetWithStats(resultSet)
 	}
 }

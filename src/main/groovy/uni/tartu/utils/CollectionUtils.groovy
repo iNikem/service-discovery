@@ -12,7 +12,7 @@ class CollectionUtils {
 	private CollectionUtils() {}
 
 	public static List<String> transform(List<String> urls, String delimiter) {
-		urls.collect { split(it, delimiter).collect { """'$it'""" }.join('.') }
+		urls.collect { split(it, delimiter).collect { """'${it.replace("'", "")}'""" }.join('.') }
 	}
 
 	public static void init() {
@@ -20,9 +20,13 @@ class CollectionUtils {
 	}
 
 	private static void initListHelpers() {
-		List.metaClass.filter { String[] patterns ->
-			delegate.removeAll { entry -> patterns.any { entry.contains(it) } }
+		List.metaClass.clean {
+			delegate.removeAll { String entry -> ['.html', '$', '.php', '.js', '.txt', '.css', '.jtp', '.ico', '.gif', '.text'].any { entry.contains(it) } }
 			delegate
+		}
+
+		List.metaClass.polluted {
+			delegate.findAll { String entry -> ['.html', '$', '.php', '.js', '.txt', '.css', '.jtp', '.ico', '.gif', '.text'].any { entry.contains(it) } }
 		}
 	}
 }

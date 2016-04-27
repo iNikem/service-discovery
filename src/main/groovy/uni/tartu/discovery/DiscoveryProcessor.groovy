@@ -1,6 +1,7 @@
 package uni.tartu.discovery
 
-import uni.tartu.storage.ResultSetWithStats
+import uni.tartu.configuration.Configuration
+import uni.tartu.storage.IntermediateResultSet
 
 /**
  * author: lkokhreidze
@@ -10,13 +11,14 @@ import uni.tartu.storage.ResultSetWithStats
 
 public interface DiscoveryProcessor {
 
-	public DiscoveryProcessor analyze()
+	public void init(List<String> services, Configuration configuration)
 
 	public DiscoveryProcessor group()
 
+	public DiscoveryProcessor analyze()
+
+	public IntermediateResultSet reduce()
+
 	public DiscoveryType getType()
 
-	public List<ResultSetWithStats> toTree()
-
-	public void init(List<String> services)
 }

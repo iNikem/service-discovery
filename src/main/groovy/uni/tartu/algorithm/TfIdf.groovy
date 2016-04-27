@@ -1,5 +1,6 @@
 package uni.tartu.algorithm
 
+import uni.tartu.configuration.Configuration
 import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.UrlInfoData
 
@@ -12,29 +13,28 @@ import static uni.tartu.algorithm.MiniMapReduce.*
  **/
 
 class TfIdf {
-
-	private static float PARAMETER_THRESHOLD = 0.001
-	private static float IMPORTANCE_THRESHOLD = 0.003
-
 	private final Map<String, AnalyzedUrlData> analyzedUrls = new HashMap<>()
 	private FirstIteration firstIteration
 	private SecondIteration secondIteration
 	private ThirdIteration thirdIteration
 
-	TfIdf(FirstIteration firstIteration,
-			SecondIteration secondIteration,
-			ThirdIteration thirdIteration) {
+	TfIdf(FirstIteration firstIteration, SecondIteration secondIteration, ThirdIteration thirdIteration) {
 		this.firstIteration = firstIteration
 		this.secondIteration = secondIteration
 		this.thirdIteration = thirdIteration
 	}
 
-	public Map<String, AnalyzedUrlData> calculate(Map groupedData) {
+	public Map<String, AnalyzedUrlData> calculate(Map groupedData, long D, Configuration configuration) {
 		def analyzedData = thirdIteration.perform(secondIteration.perform(firstIteration.perform(groupedData)))
-		calculateTfIdf(analyzedData, 12)
+		calculateTfIdf(analyzedData, D, configuration)
 	}
 
-	private Map<String, AnalyzedUrlData> calculateTfIdf(Map data, int D) {
+	private Map<String, AnalyzedUrlData> calculateTfIdf(Map data, long D, Configuration configuration) {
+		def parameterThreshold = configuration.getParameterThreshold()
+		def importanceThreshold = configuration.getImportanceThreshold()
+
+		System.out.println(parameterThreshold)
+		System.out.println(importanceThreshold)
 		def wordIdHolder = getUrlIdHolders()
 		data.each { k, v ->
 			def parts = (v as String).split(";"),
@@ -48,23 +48,26 @@ class TfIdf {
 			wordIdHolder.get(urlPart).each {
 				def holder = it as UrlInfoData
 				def urlId = holder.urlId
-				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= PARAMETER_THRESHOLD) {
+				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= parameterThreshold) {
 					analyzedUrls.get(holder.originalUrl).urlPart.add(urlPart)
-				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= PARAMETER_THRESHOLD) {
+				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= parameterThreshold) {
 					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
 					analyzedUrl.urlPart = [urlPart]
 					analyzedUrls.put(holder.originalUrl, analyzedUrl)
 				}
-				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf > PARAMETER_THRESHOLD) {
+				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
 					analyzedUrls.get(holder.originalUrl).staticParts.add(urlPart)
-				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf > PARAMETER_THRESHOLD) {
+				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
 					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
 					analyzedUrl.staticParts = [urlPart]
 					analyzedUrls.put(holder.originalUrl, analyzedUrl)
 				}
 			}
 		}
-		analyzedUrls.findAll { it.value.score > IMPORTANCE_THRESHOLD }
+		if (importanceThreshold > 0) {
+			return analyzedUrls.findAll { it.value.score > importanceThreshold }
+		}
+		analyzedUrls
 	}
 
 	static class FirstIteration {

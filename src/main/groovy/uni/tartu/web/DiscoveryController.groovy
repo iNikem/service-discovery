@@ -21,7 +21,7 @@ import static uni.tartu.parser.Parser.parse
 class DiscoveryController {
 
 	@RequestMapping(value = '/services/tree', method = RequestMethod.GET)
-	public List<ResultSetWithStats> getServiceTree(@RequestParam String id) {
+	public ResultSetWithStats getServiceTree(@RequestParam String id) {
 		def discovery = new Discovery(DiscoveryInitializer.getInitializerInstance().loadProviders(parse {
 			new File(Thread
 				.currentThread()
@@ -29,6 +29,10 @@ class DiscoveryController {
 				.getResource("${id}.csv")
 				.toURI())
 		}))
-		discovery.discover()
+		def d = discovery.discover()
+		def s = d.urlBasedServiceResults.reducedServicesSize
+		def p = d.urlBasedServiceResults.reductionPercentage
+		def g = d.urlBasedServiceResults.graph
+		d
 	}
 }
