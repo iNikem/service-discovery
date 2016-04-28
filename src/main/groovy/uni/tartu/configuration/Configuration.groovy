@@ -2,8 +2,6 @@ package uni.tartu.configuration
 
 import groovy.util.logging.Slf4j
 
-import java.lang.reflect.Method
-
 /**
  * author: lkokhreidze
  * date: 4/6/16
@@ -11,9 +9,12 @@ import java.lang.reflect.Method
  **/
 
 @Slf4j
+//TODO add filter configuration from configuration discovery.properties file
 public class Configuration extends AbstractConfiguration {
-	private double parameterThreshold = 0
-	private double importanceThreshold = 0
+	private double parameterThreshold
+	private double importanceThreshold
+	private String filters
+	private int maxGroupSize
 
 	Configuration() {
 		configure()
@@ -25,7 +26,7 @@ public class Configuration extends AbstractConfiguration {
 
 	@Property(value = "discovery.importanceThreshold")
 	public void setImportanceThreshold(double importanceThreshold) {
-		this.importanceThreshold = importanceThreshold
+		this.importanceThreshold = importanceThreshold > 0 ? importanceThreshold : 0.005
 	}
 
 	public double getParameterThreshold() {
@@ -34,7 +35,31 @@ public class Configuration extends AbstractConfiguration {
 
 	@Property(value = "discovery.parameterThreshold")
 	public void setParameterThreshold(double parameterThreshold) {
-		this.parameterThreshold = parameterThreshold
+		this.parameterThreshold = parameterThreshold > 0 ? parameterThreshold : 0.003
+	}
+
+	public String[] getFilters() {
+		def defaultFilters = ['.html', '$', '.php', '.js', '.txt', '.css', '.jtp', '.ico', '.gif', '.text', '.pdf']
+		if (filters == null) {
+			return defaultFilters
+		}
+		def filters = filters.split(",")
+		log.info("got filters from properties with size: {}", filters.size())
+		return filters.size() > 0 ? filters : defaultFilters
+	}
+
+	@Property(value = "discovery.filters")
+	public void setFilters(String filters) {
+		this.filters = filters
+	}
+
+	public int getMaxGroupSize() {
+		return maxGroupSize
+	}
+
+	@Property(value = "discovery.maxGroupSize")
+	public void setMaxGroupSize(int maxGroupSize) {
+		this.maxGroupSize = maxGroupSize > 0 ? maxGroupSize : 1000
 	}
 
 }

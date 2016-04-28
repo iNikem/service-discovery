@@ -32,6 +32,13 @@ abstract class AbstractConfiguration {
 							String strVal = p.get(prop).toString()
 							double val = Double.parseDouble(strVal)
 							m.invoke(this, val)
+						} else if (parameterTypes[0] == Integer.class || parameterTypes[0] == int.class) {
+							String strVal = p.get(prop).toString()
+							int val = Integer.parseInt(strVal)
+							m.invoke(this, val)
+						} else if (parameterTypes[0] == String.class) {
+							String strVal = p.get(prop).toString()
+							m.invoke(this, strVal)
 						}
 					} catch (Exception e) {
 						log.error("failed to configure properties from classpath", e)
@@ -48,7 +55,8 @@ abstract class AbstractConfiguration {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader()
 		InputStream is = classLoader.getResourceAsStream(propertyFileName)
 		if (is == null) {
-			throw new RuntimeException("no discovery.properties found in the classpath.")
+			log.warn("couldn't get properties from classpath")
+			return null
 		}
 		log.info("found discovery.properties file in path: {}", classLoader.getResource(propertyFileName).toURI().getPath())
 		try {

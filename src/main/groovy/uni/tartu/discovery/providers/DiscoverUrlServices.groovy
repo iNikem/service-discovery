@@ -146,7 +146,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	void init(List<String> services, Configuration configuration) {
 		log.info("started initialisation phase for URL discovery")
 		this.configuration = configuration
-		def serviceGrouping = new ServiceGrouping(services.size())
+		def serviceGrouping = new ServiceGrouping(services.size(), configuration.getMaxGroupSize())
 		services.findAll { it.split(';')[1].startsWith("/") }.eachWithIndex { url, i ->
 			def collectionId = serviceGrouping.generateGroupingId()
 			def cleaned = clean(url)

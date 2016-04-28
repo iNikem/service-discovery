@@ -17,7 +17,6 @@ public class DiscoveryInitializer {
 	private static DiscoveryInitializer INITIALIZER_INSTANCE
 	private Map<DiscoveryType, DiscoveryProcessor> discoveryProviders = [:]
 	private final static String PACKAGE_BASE = "uni.tartu.discovery.providers"
-	private final Configuration configuration
 
 	static {
 		INITIALIZER_INSTANCE = new DiscoveryInitializer()
@@ -25,14 +24,13 @@ public class DiscoveryInitializer {
 
 	private DiscoveryInitializer() {
 		log.info("loading discovery providers.")
-		this.configuration = new Configuration()
 	}
 
 	public static DiscoveryInitializer getInitializerInstance() {
 		return INITIALIZER_INSTANCE
 	}
 
-	public Map<DiscoveryType, DiscoveryProcessor> loadProviders(List<String> records) {
+	public Map<DiscoveryType, DiscoveryProcessor> loadProviders(List<String> records, Configuration configuration) {
 		ReflectionUtils.scan(PACKAGE_BASE, DiscoveryProvider.class).each { DiscoveryProcessor processor ->
 			processor.init(records, configuration)
 			discoveryProviders[(processor.getType())] = processor

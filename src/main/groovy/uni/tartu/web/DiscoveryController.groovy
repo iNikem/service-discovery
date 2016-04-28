@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uni.tartu.discovery.Discovery
 import uni.tartu.discovery.DiscoveryInitializer
+import uni.tartu.discovery.DiscoveryRunner
 import uni.tartu.storage.ResultSetWithStats
 
 import static uni.tartu.parser.Parser.parse
@@ -20,19 +21,15 @@ import static uni.tartu.parser.Parser.parse
 @RequestMapping('/api/discovery')
 class DiscoveryController {
 
+	//FIXME ResultSetWithStats can't be resolved as response atm. fix it
 	@RequestMapping(value = '/services/tree', method = RequestMethod.GET)
 	public ResultSetWithStats getServiceTree(@RequestParam String id) {
-		def discovery = new Discovery(DiscoveryInitializer.getInitializerInstance().loadProviders(parse {
-			new File(Thread
-				.currentThread()
-				.getContextClassLoader()
-				.getResource("${id}.csv")
-				.toURI())
-		}))
-		def d = discovery.discover()
-		def s = d.urlBasedServiceResults.reducedServicesSize
-		def p = d.urlBasedServiceResults.reductionPercentage
-		def g = d.urlBasedServiceResults.graph
-		d
+		DiscoveryRunner discovery = new DiscoveryRunner()
+		def resultSet = discovery.discover(new File(Thread
+			.currentThread()
+			.getContextClassLoader()
+			.getResource("${id}.csv")
+			.toURI()))
+		resultSet
 	}
 }

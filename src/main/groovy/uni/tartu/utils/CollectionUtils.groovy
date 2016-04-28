@@ -1,5 +1,7 @@
 package uni.tartu.utils
 
+import uni.tartu.configuration.Configuration
+
 import static uni.tartu.utils.StringUtils.split
 
 /**
@@ -15,18 +17,19 @@ class CollectionUtils {
 		urls.collect { split(it, delimiter).collect { """'${it.replace("'", "")}'""" }.join('.') }
 	}
 
-	public static void init() {
-		initListHelpers()
+	public static void init(Configuration configuration) {
+		initListHelpers(configuration)
 	}
 
-	private static void initListHelpers() {
+	private static void initListHelpers(Configuration configuration) {
+		def filters = configuration.getFilters()
 		List.metaClass.clean {
-			delegate.removeAll { String entry -> ['.html', '$', '.php', '.js', '.txt', '.css', '.jtp', '.ico', '.gif', '.text', '.pdf'].any { entry.contains(it) } }
+			delegate.removeAll { String entry -> filters.any { entry.contains(it) } }
 			delegate
 		}
 
 		List.metaClass.polluted {
-			delegate.findAll { String entry -> ['.html', '$', '.php', '.js', '.txt', '.css', '.jtp', '.ico', '.gif', '.text', '.pdf'].any { entry.contains(it) } }
+			delegate.findAll { String entry -> filters.any { entry.contains(it) } }
 		}
 	}
 }

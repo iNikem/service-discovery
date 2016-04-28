@@ -1,5 +1,6 @@
 package uni.tartu.parser
 
+import uni.tartu.configuration.Configuration
 import uni.tartu.utils.CollectionUtils
 
 import static uni.tartu.utils.StringUtils.trim
@@ -14,10 +15,10 @@ class Parser {
 
 	private static final List<String> pollutedUrls = []
 
-	public static List<String> parse(Closure<File> what) {
+	public static List<String> parse(File what, Configuration configuration) {
 		pollutedUrls.clear()
-		CollectionUtils.init()
-		def lines = what().readLines()
+		CollectionUtils.init(configuration)
+		def lines = what.readLines()
 		def keys = lines[0].split(',').collect { trim(it) }
 		def records = lines[1..-1].collect { line ->
 			def i = 0, values = line.split(',', -1)
@@ -28,23 +29,24 @@ class Parser {
 		def polluted = records.polluted() as List<String>
 		def clean = records.clean() as List<String>
 		pollutedUrls.addAll(polluted)
-		checkValidity(clean)
+		checkValidity(clean, configuration)
 	}
 
-	public static List<String> parse(String id, List<String> records) {
+	public static List<String> parse(String id, List<String> records, Configuration configuration) {
 		pollutedUrls.clear()
-		CollectionUtils.init()
+		CollectionUtils.init(configuration)
 		pollutedUrls.addAll(records.polluted() as List<String>)
-		checkValidity(records.clean().collect { "$id;$it".toString() })
+		checkValidity(records.clean().collect { "$id;$it".toString() }, configuration)
 	}
 
 	public static getPollutedUrls() {
 		pollutedUrls
 	}
 
-	private static List<String> checkValidity(def records) {
-		if (records.size() < 1000) {
-			throw new RuntimeException("After initial data cleaning, got result with less than 1000 records. Can't work with this amount")
+	private static List<String> checkValidity(def records, Configuration configuration) {
+		if (records.size() < configuration.getMaxGroupSize()) {
+			throw new RuntimeException("records size (after cleaning): ${records.size()} can't be less that maxGroupingSize: ${configuration.getMaxGroupSize()}. " +
+				"If tou haven't specified discovery.maxGroupSize property than default value of 1000 will be used")
 		}
 		return records
 	}
