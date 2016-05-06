@@ -4,12 +4,11 @@
         <h4 style="text-align: center">
             <span ng-if="tree.loaded">Tree</span>
         <span ng-if="!tree.loaded && tree.requestSent">
-            Yo Yo Yo, Analyzing...
+           Started service discovery analysis for the id: {{tree.id}}. This may take a while...
         </span>
         </h4>
         <div class="chart" id="url-tree">
         </div>
-
     </div>
 
     <div class="col-lg-1">
@@ -24,8 +23,11 @@
     </div>
     <div class="col-lg-2" style="float: right">
         <h4>Stats</h4>
-        <p>Reduced by {{tree.stats.reducePercentage}}</p>
-        <p>Original Size {{tree.stats.originalServices}}</p>
-        <p>Reduces Size {{tree.stats.reducedServices}}</p>
+        <p>Original Size {{tree.stats.total}}</p>
+        <p>Reduced by {{tree.stats.reductionPercentage}}</p>
+        <p>Reduced URL Services Size {{tree.stats.reducedServicesSize}}</p>
+        <p>Total URL Services Size {{tree.stats.urlServicesSize}}</p>
+        <p>Noise Size {{tree.stats.ignoredNoiseSize}}</p>
+        <p>Ignored Controller-bases Services {{tree.stats.ignoredControllerServices}}</p>
     </div>
 </div>

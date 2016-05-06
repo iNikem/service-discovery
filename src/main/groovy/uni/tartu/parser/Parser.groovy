@@ -1,5 +1,6 @@
 package uni.tartu.parser
 
+import groovy.util.logging.Slf4j
 import uni.tartu.configuration.Configuration
 import uni.tartu.utils.CollectionUtils
 
@@ -11,6 +12,7 @@ import static uni.tartu.utils.StringUtils.trim
  * time: 8:59 PM
  **/
 
+@Slf4j
 class Parser {
 
 	private static final List<String> pollutedUrls = []
@@ -29,6 +31,7 @@ class Parser {
 		def polluted = records.polluted() as List<String>
 		def clean = records.clean() as List<String>
 		pollutedUrls.addAll(polluted)
+		log.info("Found {} polluted URLs. Current filter: {}", pollutedUrls.size(), configuration.getFilters().join(", "))
 		checkValidity(clean, configuration)
 	}
 
@@ -36,6 +39,7 @@ class Parser {
 		pollutedUrls.clear()
 		CollectionUtils.init(configuration)
 		pollutedUrls.addAll(records.polluted() as List<String>)
+		log.info("Found {} polluted URLs. Current filter: {}", pollutedUrls.size(), configuration.getFilters().join(", "))
 		checkValidity(records.clean().collect { "$id;$it".toString() }, configuration)
 	}
 

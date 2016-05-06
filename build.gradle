@@ -54,9 +54,11 @@ task run(dependsOn: 'classes', type: JavaExec) {
 //create a single Jar with only required dependencies
 task jarjarBinks(type: Jar) {
 	manifest {
-		attributes 'Implementation-Title': 'Service Discovery',
+		attributes(
+			'Implementation-Title': 'Service Discovery',
 			'Implementation-Version': '2.2',
 			'Class-Path': 'service-discovery-all-2.2.jar'
+		)
 	}
 	baseName = project.name + '-all'
 	from configurations.releaseJars.collect { it.isDirectory() ? it : zipTree(it) }

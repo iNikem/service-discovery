@@ -1,6 +1,7 @@
 package uni.tartu.algorithm.tree
 
 import org.codehaus.groovy.control.CompilerConfiguration
+import uni.tartu.utils.TextDumper
 
 /**
  * author: lkokhreidze
@@ -17,6 +18,7 @@ class TreeBuilder {
 	}
 
 	public def transform(List<String> reducedUrls) {
+		TextDumper.dump([reducedUrls])
 		def nodes = tree(reducedUrls)
 		constructNode('/ROOT/', collectNodes(nodes), false)
 	}

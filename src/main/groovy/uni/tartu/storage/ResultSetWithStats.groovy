@@ -1,5 +1,6 @@
 package uni.tartu.storage
 
+import groovy.util.logging.Slf4j
 import uni.tartu.algorithm.DelimiterAnalyzer
 import uni.tartu.algorithm.tree.TreeBuilder
 import uni.tartu.discovery.DiscoveryType
@@ -13,6 +14,7 @@ import static uni.tartu.utils.CollectionUtils.transform
  * time: 4:33 PM
  **/
 
+@Slf4j
 class ResultSetWithStats {
 
 	final ControllerBasedServiceResults ignoredControllerBasedServices
@@ -69,12 +71,15 @@ class ResultSetWithStats {
 		}
 
 		def getGraph() {
+			log.info("started building graph from reduced URLs")
 			if (!services) {
 				return null
 			}
 			def treeBuilder = new TreeBuilder()
 			String delimiter = DelimiterAnalyzer.getInstance().getDelimiter()
-			treeBuilder.transform(transform(services, delimiter))
+			def graph = treeBuilder.transform(transform(services, delimiter))
+			log.info("finished with graph building")
+			graph
 		}
 
 		public String getReductionPercentage() {

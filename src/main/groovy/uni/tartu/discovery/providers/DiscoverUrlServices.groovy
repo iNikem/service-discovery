@@ -51,7 +51,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 						"${k};${j}".toString()
 					}
 				}.flatten().each {
-					def parts = split(it, ";")
+					def parts = split(it as String, ";")
 					if (parts.size() >= 2) {
 						def idPart = parts[0],
 							 valuePart = parts[1]
@@ -107,6 +107,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			}))
 		def D = this.grouped.size()
 		this.scores = tfIdf.calculate(grouped, D, configuration).values().toList()
+		log.info("got TF-IDF scores with size: {}", scores.size())
 		this
 	}
 
@@ -115,7 +116,9 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 		log.info("started reduction phase for URL discovery")
 		def originalSize = this.originalServices.size()
 		def urlReducer = new UrlReducer(scores)
-		new IntermediateResultSet(currentProcessId, originalSize, urlReducer.reduce(), getType())
+		def reducesUrls = urlReducer.reduce()
+		log.info("reduced and generated URLs with size: {}", reducesUrls.size())
+		new IntermediateResultSet(currentProcessId, originalSize, reducesUrls, getType())
 	}
 
 	@Override
@@ -134,6 +137,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			}
 			[(k): result]
 		}
+		log.info("created intermediate URL groups with size: {}", grouped.size())
 		this
 	}
 

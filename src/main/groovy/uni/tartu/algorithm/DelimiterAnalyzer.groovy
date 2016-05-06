@@ -76,8 +76,6 @@ class DelimiterAnalyzer {
 			def delimiter = null
 			v.findAll { it.value > DELIMITER_CONFIDENCE_THRESHOLD }.each { delimiter = knownDelimiters[it.key] }
 			analyzedDelimiters.put(k, delimiter)
-		}
-		analyzedDelimiters.each { k, v ->
 			log.info("for account: {} got delimiter: {}", k, v)
 		}
 	}

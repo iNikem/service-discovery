@@ -15,13 +15,10 @@ app.config(function ($stateProvider, $locationProvider) {
             url: '/'
         })
         .state('root.tree', {
-            url: 'tree',
+            url: '',
             controller: 'TreeController as tree',
             templateUrl: '/angular/main/tree/tree.html'
         })
-
-});
-
-app.run(function () {
+}).run(function () {
     console.log('running...')
 });

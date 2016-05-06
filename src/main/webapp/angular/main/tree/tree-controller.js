@@ -10,21 +10,30 @@ function TreeController($resource) {
     vm.loaded = false;
     vm.requestSent = false;
 
+    vm.graph = {};
     vm.stats = {
-        reducePercentage: '',
-        originalServices: 0,
-        reducedServices: 0
+        reductionPercentage: '',
+        reducedServicesSize: 0,
+        urlServicesSize: 0,
+        ignoredNoiseSize: 0,
+        ignoredControllerServices: 0,
+        total: 0
     };
 
     vm.getTree = function () {
         vm.requestSent = true;
+
         get(vm.id).$promise.then(function (data) {
             vm.loaded = true;
-            vm.stats.reducePercentage = data[0].reducePercentage;
-            vm.stats.originalServices = data[0].originalServices;
-            vm.stats.reducedServices = data[0].reducedServices;
-            var res = data[0].services;
-            console.log(res);
+            vm.stats.reductionPercentage = data.reductionPercentage;
+            vm.stats.reducedServicesSize = data.reducedServicesSize;
+            vm.stats.urlServicesSize = data.urlServicesSize;
+            vm.stats.ignoredNoiseSize = data.ignoredNoiseSize;
+            vm.stats.ignoredControllerServices = data.ignoredControllerServices;
+            vm.stats.total = data.total;
+            vm.graph = data.graph;
+            console.log(vm.stats);
+            console.log(vm.graph);
             var chart_config = {
                 chart: {
                     container: "#url-tree",
@@ -44,13 +53,15 @@ function TreeController($resource) {
                         collapsable: true
                     }
                 },
-                nodeStructure: res
+                nodeStructure: vm.graph
             };
-            new Treant(chart_config);
+            try {
+                new Treant(chart_config);
+            } catch(e) {}
         })
     };
 
     function get(id) {
-        return $resource('/api/discovery/services/tree', {id: id}).query()
+        return $resource('/api/discovery/services/tree', {id: id}).get()
     }
 }
