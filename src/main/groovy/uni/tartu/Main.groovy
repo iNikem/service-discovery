@@ -1,9 +1,9 @@
 package uni.tartu
 
-import java.util.concurrent.TimeUnit
 import uni.tartu.configuration.Configuration
 import uni.tartu.discovery.Discovery
 import uni.tartu.discovery.DiscoveryInitializer
+import uni.tartu.utils.ThreadLocalStopWatch
 
 import static uni.tartu.parser.Parser.parse
 
@@ -21,11 +21,12 @@ class Main {
   }
 
   protected static void runFor(String dataset, Configuration conf) {
+    ThreadLocalStopWatch.clear()
+
     def records = parse(new File(Main.class.getResource("/" + dataset + ".csv").toURI()), conf)
-    def start = System.nanoTime()
     def discovery = new Discovery(DiscoveryInitializer.getInitializerInstance().loadProvider(records, conf))
     def result = discovery.discover()
-    println "Running time " + TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start)
+    println ThreadLocalStopWatch.get().prettyPrint()
     println result
   }
 }

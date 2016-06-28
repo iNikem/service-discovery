@@ -1,8 +1,8 @@
 package uni.tartu.discovery
 
 import groovy.util.logging.Slf4j
-import org.springframework.util.StopWatch
 import uni.tartu.storage.ResultSetWithStats
+import uni.tartu.utils.ThreadLocalStopWatch
 
 /**
  * author: lkokhreidze
@@ -19,7 +19,7 @@ class Discovery {
   }
 
   ResultSetWithStats discover() {
-    def watch = new StopWatch()
+    def watch = ThreadLocalStopWatch.get()
 
     watch.start('tokenize')
     def stepResult = discoveryProvider.tokenize()
@@ -32,8 +32,6 @@ class Discovery {
     watch.start('reduce')
     def finalResult = stepResult.reduce()
     watch.stop()
-
-    println watch.prettyPrint()
 
     log.info("got intermediate results, building result set. my work here is done!")
     new ResultSetWithStats(finalResult)
