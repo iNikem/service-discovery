@@ -52,7 +52,7 @@ class TfIdf {
 				def holder = it as UrlInfoData
 				def urlId = holder.urlId
 				if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
-					analyzedUrls.get(holder.originalUrl).urlPart.add(urlPart)
+					analyzedUrls.get(holder.originalUrl).dynamicPartsToReplace.add(urlPart)
 				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= parameterThreshold) {
 					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
 					analyzedUrl.staticParts = [urlPart]
@@ -62,7 +62,7 @@ class TfIdf {
 					analyzedUrls.get(holder.originalUrl).staticParts.add(urlPart)
 				} else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
 					def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
-					analyzedUrl.urlPart = [urlPart]
+					analyzedUrl.dynamicPartsToReplace = [urlPart]
 					analyzedUrls.put(holder.originalUrl, analyzedUrl)
 				}
 			}

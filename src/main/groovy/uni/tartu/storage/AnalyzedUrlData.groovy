@@ -9,13 +9,13 @@ package uni.tartu.storage
 class AnalyzedUrlData {
 	public String accountId
 	public int urlId
-	public List<String> urlPart = []
+	public List<String> dynamicPartsToReplace = []
 	public List<String> staticParts = []
 	public double score
 	public String originalUrl
 
 	@Override
 	public String toString() {
-		return "$accountId;$originalUrl - ($urlId) params: ${urlPart} static parts: ${staticParts}".toString();
+		return "$accountId;$originalUrl - ($urlId) params: ${dynamicPartsToReplace} static parts: ${staticParts}".toString();
 	}
 }

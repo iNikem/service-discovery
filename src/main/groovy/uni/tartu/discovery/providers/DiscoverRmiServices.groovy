@@ -39,7 +39,7 @@ class DiscoverRmiServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	DiscoveryProcessor group() {
+	DiscoveryProcessor tokenize() {
 		log.info("started grouping phase for controller based services")
 		this
 	}

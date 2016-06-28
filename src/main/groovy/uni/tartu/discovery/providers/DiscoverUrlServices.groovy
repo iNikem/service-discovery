@@ -122,7 +122,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 	}
 
 	@Override
-	DiscoveryProcessor group() {
+	DiscoveryProcessor tokenize() {
 		log.info("started grouping phase for URL discovery")
 		this.grouped = initialGroups.collectEntries { k, v ->
 			def result = v.collect { url ->

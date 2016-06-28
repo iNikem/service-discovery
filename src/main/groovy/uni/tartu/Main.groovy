@@ -1,5 +1,7 @@
 package uni.tartu
 
+import java.util.concurrent.TimeUnit
+import uni.tartu.configuration.Configuration
 import uni.tartu.discovery.Discovery
 import uni.tartu.discovery.DiscoveryInitializer
 
@@ -12,14 +14,19 @@ import static uni.tartu.parser.Parser.parse
  **/
 
 class Main {
-	public static void main(String[] args) {
-		def discovery = new Discovery(DiscoveryInitializer.getInitializerInstance().loadProviders(parse {
-			new File(Main
-				.class
-				.getClassLoader()
-				.getResource("test-data-1.csv")
-				.toURI())
-		}))
-		discovery.discover()
-	}
+  public static void main(String[] args) {
+    def conf = new Configuration()
+    def start = System.nanoTime()
+    def discovery = new Discovery(DiscoveryInitializer.getInitializerInstance().loadProviders(parse(
+        new File(Main
+            .class
+            .getResource("/k8g0ta8m6e7gsb2afhq6qm5efh.csv")
+            .toURI()),
+        conf
+    ), conf
+    ))
+    def result = discovery.discover()
+    println "Running time " + TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start)
+    println result
+  }
 }

@@ -26,7 +26,7 @@ class UrlReducer {
 			def delimiter = delimiterAnalyzer.getDelimiter(it.accountId)
 			def regexToInject = 'PARAMETER_PART'
 			def currentStr = it.originalUrl
-			it.urlPart.each { dynamic ->
+			it.dynamicPartsToReplace.each { dynamic ->
 				def inj = delimiter + regexToInject + delimiter
 				currentStr = replace(dynamic, inj, currentStr, delimiter)
 			}

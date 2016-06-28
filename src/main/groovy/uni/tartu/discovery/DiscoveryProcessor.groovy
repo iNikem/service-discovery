@@ -13,7 +13,7 @@ public interface DiscoveryProcessor {
 
 	public void init(List<String> services, Configuration configuration)
 
-	public DiscoveryProcessor group()
+	public DiscoveryProcessor tokenize()
 
 	public DiscoveryProcessor analyze()
 

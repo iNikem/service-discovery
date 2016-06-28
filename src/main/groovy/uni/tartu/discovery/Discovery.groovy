@@ -20,7 +20,7 @@ class Discovery {
 
 	ResultSetWithStats discover() {
 		def resultSet = discoveryProviders.collectEntries {
-			[(it.key): it.value.group().analyze().reduce()]
+			[(it.key): it.value.tokenize().analyze().reduce()]
 		} as Map<DiscoveryType, IntermediateResultSet>
 		log.info("got intermediate results, building result set. my work here is done!")
 		new ResultSetWithStats(resultSet)
