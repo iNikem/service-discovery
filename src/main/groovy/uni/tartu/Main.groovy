@@ -16,13 +16,14 @@ import static uni.tartu.parser.Parser.parse
 class Main {
   public static void main(String[] args) {
     def conf = new Configuration()
+    runFor("k8g0ta8m6e7gsb2afhq6qm5efh", conf)
+    runFor("1d8v0kuc4vcf08n96qa5d2jh73", conf)
+  }
+
+  protected static void runFor(String dataset, Configuration conf) {
     def start = System.nanoTime()
     def discovery = new Discovery(DiscoveryInitializer.getInitializerInstance().loadProviders(parse(
-        new File(Main
-            .class
-            .getResource("/k8g0ta8m6e7gsb2afhq6qm5efh.csv")
-            .toURI()),
-        conf
+        new File(Main.class.getResource("/" + dataset + ".csv").toURI()), conf
     ), conf
     ))
     def result = discovery.discover()
