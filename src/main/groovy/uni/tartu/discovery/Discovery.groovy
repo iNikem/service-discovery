@@ -25,9 +25,7 @@ class Discovery {
     def stepResult = discoveryProvider.tokenize()
     watch.stop()
 
-    watch.start('analyze')
     stepResult = stepResult.analyze()
-    watch.stop()
 
     watch.start('reduce')
     def finalResult = stepResult.reduce()

@@ -1,8 +1,9 @@
 package uni.tartu.algorithm
 
 import groovy.transform.CompileStatic
-import uni.tartu.storage.UrlInfoData
 import uni.tartu.storage.MultiMap
+import uni.tartu.storage.UrlInfoData
+import uni.tartu.utils.ThreadLocalStopWatch
 
 /**
  * author: lkokhreidze
@@ -13,32 +14,37 @@ import uni.tartu.storage.MultiMap
 @CompileStatic
 class MiniMapReduce {
 
-	private static final MultiMap wordIdHolder = new MultiMap()
-	private static final MultiMap dataHolder = new MultiMap()
+  private static final MultiMap wordIdHolder = new MultiMap()
+  private static final MultiMap dataHolder = new MultiMap()
 
-	public static void put(String key, Object value) {
-		dataHolder.put(key, value)
-	}
+  public static void put(String key, Object value) {
+    dataHolder.put(key, value)
+  }
 
-	public static void putUrlIdHolder(String urlPart, UrlInfoData data) {
-		wordIdHolder.put(urlPart, data)
-	}
+  public static void putUrlIdHolder(String urlPart, UrlInfoData data) {
+    wordIdHolder.put(urlPart, data)
+  }
 
-	public static Map getUrlIdHolders() {
-		wordIdHolder
-	}
+  public static Map getUrlIdHolders() {
+    wordIdHolder
+  }
 
-	static class Mapper {
-		public static def map(Map what, Closure how) {
-			dataHolder.clear()
-			what.collect how
-			dataHolder
-		}
-	}
+  static class Mapper {
+    public static def map(Map what, Closure how) {
+      ThreadLocalStopWatch.get().start('mapper-' + how.toString())
+      dataHolder.clear()
+      what.collect how
+      ThreadLocalStopWatch.get().stop()
+      dataHolder
+    }
+  }
 
-	static class Reducer {
-		public static def reduce(Map what, Closure how) {
-			what.inject [:], how
-		}
-	}
+  static class Reducer {
+    public static def reduce(Map what, Closure how) {
+      ThreadLocalStopWatch.get().start('reducer-' + how.toString())
+      def result = what.inject [:], how
+      ThreadLocalStopWatch.get().stop()
+      result
+    }
+  }
 }

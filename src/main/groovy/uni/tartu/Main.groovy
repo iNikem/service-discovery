@@ -1,5 +1,6 @@
 package uni.tartu
 
+import org.springframework.util.StopWatch
 import uni.tartu.configuration.Configuration
 import uni.tartu.discovery.Discovery
 import uni.tartu.discovery.DiscoveryInitializer
@@ -24,9 +25,17 @@ class Main {
     ThreadLocalStopWatch.clear()
 
     def records = parse(new File(Main.class.getResource("/" + dataset + ".csv").toURI()), conf)
+
+    def globalWatch = new StopWatch()
+    globalWatch.start('total')
+
     def discovery = new Discovery(DiscoveryInitializer.getInitializerInstance().loadProvider(records, conf))
     def result = discovery.discover()
+
+    globalWatch.stop()
+    println globalWatch.prettyPrint()
     println ThreadLocalStopWatch.get().prettyPrint()
+
     println result
   }
 }

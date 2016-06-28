@@ -4,6 +4,7 @@ import groovy.util.logging.Slf4j
 import uni.tartu.configuration.Configuration
 import uni.tartu.storage.AnalyzedUrlData
 import uni.tartu.storage.UrlInfoData
+import uni.tartu.utils.ThreadLocalStopWatch
 
 import static uni.tartu.algorithm.MiniMapReduce.Mapper
 import static uni.tartu.algorithm.MiniMapReduce.Reducer
@@ -35,6 +36,7 @@ class TfIdf {
 
   private Map<String, AnalyzedUrlData> calculateTfIdf(Map data, long D, Configuration configuration) {
     log.info("started calculating TF-IDF score")
+    ThreadLocalStopWatch.get().start('calculateTfIdf')
     def parameterThreshold = configuration.getParameterThreshold()
     def importanceThreshold = configuration.getImportanceThreshold()
     def wordIdHolder = getUrlIdHolders()
@@ -45,7 +47,7 @@ class TfIdf {
           m = parts[2] as int
       double tfIdf = ((n / N) as double) * Math.log((D / m) as double)
       if (D < m) {
-        log.warn("something shitty happening, should't get negative log")
+        log.warn("something shitty happening, shouldn't get negative log")
       }
       def ids = (k as String).split(";")
       def urlPart = ids[0]
@@ -69,6 +71,7 @@ class TfIdf {
         }
       }
     }
+    ThreadLocalStopWatch.get().stop()
     if (importanceThreshold > 0) {
       return analyzedUrls.findAll { it.value.score > importanceThreshold }
     }
@@ -80,7 +83,7 @@ class TfIdf {
     private Closure mapper
     private Closure reducer
 
-    private Step(Closure mapper, Closure reducer) {
+    public Step(Closure mapper, Closure reducer) {
       this.mapper = mapper
       this.reducer = reducer
     }

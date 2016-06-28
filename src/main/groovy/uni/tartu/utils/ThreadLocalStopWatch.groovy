@@ -6,7 +6,7 @@ class ThreadLocalStopWatch {
 
   private static ThreadLocal<StopWatch> holder = ThreadLocal.withInitial({ new StopWatch() });
 
-  public static get() {
+  public static StopWatch get() {
     return holder.get()
   }
 
