@@ -10,4 +10,10 @@ class UrlInfoData {
 	public String urlPart
 	public int urlId
 	public String originalUrl
+
+	UrlInfoData(String urlPart, int urlId, String originalUrl) {
+		this.urlPart = urlPart
+		this.urlId = urlId
+		this.originalUrl = originalUrl
+	}
 }

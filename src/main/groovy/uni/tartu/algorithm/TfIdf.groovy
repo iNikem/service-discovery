@@ -28,12 +28,12 @@ class TfIdf {
     this.thirdIteration = thirdIteration
   }
 
-  public Map<String, AnalyzedUrlData> calculate(Map groupedData, long D, Configuration configuration) {
+  public Collection<AnalyzedUrlData> calculate(Map groupedData, long D, Configuration configuration) {
     def analyzedData = thirdIteration.perform(secondIteration.perform(firstIteration.perform(groupedData)))
     calculateTfIdf(analyzedData, D, configuration)
   }
 
-  private Map<String, AnalyzedUrlData> calculateTfIdf(Map data, long D, Configuration configuration) {
+  private Collection<AnalyzedUrlData> calculateTfIdf(Map data, long D, Configuration configuration) {
     log.info("started calculating TF-IDF score")
     ThreadLocalStopWatch.get().start('calculateTfIdf')
     double parameterThreshold = configuration.getParameterThreshold()
@@ -51,13 +51,10 @@ class TfIdf {
       def ids = (k as String).split(";")
       def urlPart = ids[0]
       def id = ids[1]
-      wordIdHolder.get(urlPart).each {
-        def holder = it as UrlInfoData
-        def urlId = holder.urlId
-
+      wordIdHolder.get(urlPart).each { UrlInfoData holder ->
         def analyzedUrl = analyzedUrls.get(holder.originalUrl)
         if (analyzedUrl == null) {
-          analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
+          analyzedUrl = new AnalyzedUrlData(id, holder.urlId, tfIdf, holder.originalUrl)
           analyzedUrls.put(holder.originalUrl, analyzedUrl)
         }
         if (tfIdf > parameterThreshold) {
@@ -69,9 +66,9 @@ class TfIdf {
     }
     ThreadLocalStopWatch.get().stop()
     if (importanceThreshold > 0) {
-      return analyzedUrls.findAll { it.value.score > importanceThreshold }
+      return analyzedUrls.findAll { it.value.score > importanceThreshold }.values()
     }
-    analyzedUrls
+    analyzedUrls.values()
   }
 
   public static class Step {

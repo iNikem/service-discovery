@@ -14,18 +14,18 @@ import uni.tartu.utils.ThreadLocalStopWatch
 @CompileStatic
 class MiniMapReduce {
 
-  private static final MultiMap wordIdHolder = new MultiMap()
-  private static final MultiMap dataHolder = new MultiMap()
+  private static final MultiMap wordIdHolder = new MultiMap<String>()
+  private static final MultiMap dataHolder = new MultiMap<Object>()
 
   public static void put(String key, Object value) {
     dataHolder.put(key, value)
   }
 
-  public static void putUrlIdHolder(String urlPart, UrlInfoData data) {
-    wordIdHolder.put(urlPart, data)
+  public static void putUrlIdHolder(UrlInfoData data) {
+    wordIdHolder.put(data.urlPart, data)
   }
 
-  public static Map getUrlIdHolders() {
+  public static Map<String, List<UrlInfoData>> getUrlIdHolders() {
     wordIdHolder
   }
 

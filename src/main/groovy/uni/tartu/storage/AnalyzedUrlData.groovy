@@ -14,6 +14,13 @@ class AnalyzedUrlData {
 	public double score
 	public String originalUrl
 
+	AnalyzedUrlData(String accountId, int urlId, double score, String originalUrl) {
+		this.accountId = accountId
+		this.urlId = urlId
+		this.score = score
+		this.originalUrl = originalUrl
+	}
+
 	@Override
 	public String toString() {
 		return "$accountId;$originalUrl - ($urlId) params: ${dynamicPartsToReplace} static parts: ${staticParts}".toString();

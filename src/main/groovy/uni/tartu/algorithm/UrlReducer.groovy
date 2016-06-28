@@ -12,11 +12,11 @@ import static uni.tartu.utils.StringUtils.replace
 
 class UrlReducer {
 
-	private final List<AnalyzedUrlData> analyzedUrls
+	private final Collection<AnalyzedUrlData> analyzedUrls
 
 	private final DelimiterAnalyzer delimiterAnalyzer = DelimiterAnalyzer.getInstance()
 
-	UrlReducer(List<AnalyzedUrlData> analyzedUrls) {
+	UrlReducer(Collection<AnalyzedUrlData> analyzedUrls) {
 		this.analyzedUrls = analyzedUrls
 	}
 
