@@ -16,8 +16,10 @@ import uni.tartu.storage.UrlInfoData
 
 import static uni.tartu.algorithm.MiniMapReduce.put
 import static uni.tartu.algorithm.MiniMapReduce.putUrlIdHolder
-import static uni.tartu.algorithm.TfIdf.*
-import static uni.tartu.utils.StringUtils.*
+import static uni.tartu.algorithm.TfIdf.Step
+import static uni.tartu.utils.StringUtils.clean
+import static uni.tartu.utils.StringUtils.getKey
+import static uni.tartu.utils.StringUtils.split
 
 /**
  * author: lkokhreidze
@@ -45,7 +47,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			/**
 			 * first MapReduce job closure specification
 			 **/
-			FirstIteration.build({ k, v ->
+				new Step({ k, v ->
 				v.collect { i ->
 					i.collect { j ->
 						"${k};${j}".toString()
@@ -70,7 +72,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			/**
 			 * second MapReduce job closure specification
 			 **/
-			SecondIteration.build({ k, v ->
+				new Step({ k, v ->
 				def arr = (k as String).split(";")
 				arr.length < 2 ?: put(arr[0], "${arr[1]};${v}".toString())
 			}, { map, k, v ->
@@ -88,7 +90,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
 			/**
 			 * third MapReduce job closure specification
 			 **/
-			ThirdIteration.build({ k, v ->
+				new Step({ k, v ->
 				def parts = (k as String).split(";"),
 					 id = parts[1],
 					 urlPart = parts[0] ?: 'null'
