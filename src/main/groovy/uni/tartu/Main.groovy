@@ -21,8 +21,8 @@ class Main {
   }
 
   protected static void runFor(String dataset, Configuration conf) {
-    def start = System.nanoTime()
     def records = parse(new File(Main.class.getResource("/" + dataset + ".csv").toURI()), conf)
+    def start = System.nanoTime()
     def discovery = new Discovery(DiscoveryInitializer.getInitializerInstance().loadProvider(records, conf))
     def result = discovery.discover()
     println "Running time " + TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start)
