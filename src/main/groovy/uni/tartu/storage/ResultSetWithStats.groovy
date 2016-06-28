@@ -4,7 +4,6 @@ import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import uni.tartu.algorithm.DelimiterAnalyzer
 import uni.tartu.algorithm.tree.TreeBuilder
-import uni.tartu.parser.Parser
 
 import static uni.tartu.utils.CollectionUtils.transform
 
@@ -18,30 +17,10 @@ import static uni.tartu.utils.CollectionUtils.transform
 @ToString
 class ResultSetWithStats {
 
-  final PollutedServiceResults ignoredUrlBasedServices
   final UrlBasedServiceResults urlBasedServiceResults
 
-  final int totalSize
-
   ResultSetWithStats(IntermediateResultSet calculatedResult) {
-    def urlBasedResults = calculatedResult
-    def pollutedUrls = Parser.pollutedUrls
-    this.ignoredUrlBasedServices = new PollutedServiceResults(pollutedUrls.size(), pollutedUrls)
-    this.urlBasedServiceResults = new UrlBasedServiceResults(urlBasedResults.originalSize, urlBasedResults.generatedServices)
-    this.totalSize = this.ignoredUrlBasedServices.count + this.urlBasedServiceResults.count
-  }
-
-  @ToString
-  static class PollutedServiceResults {
-    final List<String> services
-    final int count
-    final DiscoveryStatus status
-
-    PollutedServiceResults(int count, List<String> services) {
-      this.count = count
-      this.services = services
-      this.status = DiscoveryStatus.IGNORED
-    }
+    this.urlBasedServiceResults = new UrlBasedServiceResults(calculatedResult.originalSize, calculatedResult.generatedServices)
   }
 
   @ToString

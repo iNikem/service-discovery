@@ -15,10 +15,7 @@ import static uni.tartu.utils.StringUtils.trim
 @Slf4j
 class Parser {
 
-	private static final List<String> pollutedUrls = []
-
 	public static List<String> parse(File what, Configuration configuration) {
-		pollutedUrls.clear()
 		CollectionUtils.init(configuration)
 		def lines = what.readLines()
 		def keys = lines[0].split(',').collect { trim(it) }
@@ -28,29 +25,35 @@ class Parser {
 		}.collect {
 			"${it.accountId};${it.serviceName}"
 		}
+
+    log.info("Total {} urls read", records.size())
 		def polluted = records.polluted() as List<String>
-		def clean = records.clean() as List<String>
-		pollutedUrls.addAll(polluted)
-		log.info("Found {} polluted URLs. Current filter: {}", pollutedUrls.size(), configuration.getFilters().join(", "))
+    log.info("Found {} polluted URLs. Current filter: {}", polluted.size(), configuration.getFilters().join(", "))
+
+    def clean = records.clean() as List<String>
 		checkValidity(clean, configuration)
+    log.info("{} urls read and ready for further processing", clean.size())
+    return clean
 	}
 
 	public static List<String> parse(String id, List<String> records, Configuration configuration) {
-		pollutedUrls.clear()
 		CollectionUtils.init(configuration)
-		pollutedUrls.addAll(records.polluted() as List<String>)
-		log.info("Found {} polluted URLs. Current filter: {}", pollutedUrls.size(), configuration.getFilters().join(", "))
-		checkValidity(records.clean().collect { "$id;$it".toString() }, configuration)
+
+    log.info("Total {} urls read", records.size())
+
+    def polluted = records.polluted() as List<String>
+    log.info("Found {} polluted URLs. Current filter: {}", polluted.size(), configuration.getFilters().join(", "))
+
+    def clean = records.clean().collect { "$id;$it".toString() } as List<String>
+    checkValidity(clean, configuration)
+    log.info("{} urls read and ready for further processing", clean.size())
+    return clean
 	}
 
-	public static getPollutedUrls() {
-		pollutedUrls
-	}
-
-	private static List<String> checkValidity(def records, Configuration configuration) {
+  private static List<String> checkValidity(def records, Configuration configuration) {
 		if (records.size() < configuration.getMaxGroupSize()) {
 			throw new RuntimeException("records size (after cleaning): ${records.size()} can't be less that maxGroupingSize: ${configuration.getMaxGroupSize()}. " +
-				"If tou haven't specified discovery.maxGroupSize property than default value of 1000 will be used")
+          "If you haven't specified discovery.maxGroupSize property than default value of 1000 will be used")
 		}
 		return records
 	}
