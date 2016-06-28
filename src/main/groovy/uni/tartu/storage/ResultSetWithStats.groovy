@@ -4,7 +4,6 @@ import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import uni.tartu.algorithm.DelimiterAnalyzer
 import uni.tartu.algorithm.tree.TreeBuilder
-import uni.tartu.discovery.DiscoveryType
 import uni.tartu.parser.Parser
 
 import static uni.tartu.utils.CollectionUtils.transform
@@ -19,34 +18,17 @@ import static uni.tartu.utils.CollectionUtils.transform
 @ToString
 class ResultSetWithStats {
 
-  final ControllerBasedServiceResults ignoredControllerBasedServices
   final PollutedServiceResults ignoredUrlBasedServices
   final UrlBasedServiceResults urlBasedServiceResults
 
   final int totalSize
 
-  ResultSetWithStats(Map<DiscoveryType, IntermediateResultSet> calculatedResult) {
-    def controllerBasedResults = calculatedResult[DiscoveryType.RMI_DISCOVERY]
-    def urlBasedResults = calculatedResult[DiscoveryType.URL_DISCOVERY]
-    this.ignoredControllerBasedServices = new ControllerBasedServiceResults(controllerBasedResults.originalSize, controllerBasedResults.getIgnoredServices())
+  ResultSetWithStats(IntermediateResultSet calculatedResult) {
+    def urlBasedResults = calculatedResult
     def pollutedUrls = Parser.pollutedUrls
     this.ignoredUrlBasedServices = new PollutedServiceResults(pollutedUrls.size(), pollutedUrls)
     this.urlBasedServiceResults = new UrlBasedServiceResults(urlBasedResults.originalSize, urlBasedResults.generatedServices)
-    this.totalSize = this.ignoredUrlBasedServices.count + this.ignoredControllerBasedServices.count + this.urlBasedServiceResults.count
-  }
-
-
-  @ToString
-  static class ControllerBasedServiceResults {
-    final List<String> services
-    final int count
-    final DiscoveryStatus status
-
-    ControllerBasedServiceResults(int count, List<String> services) {
-      this.services = services
-      this.count = count
-      this.status = DiscoveryStatus.IGNORED
-    }
+    this.totalSize = this.ignoredUrlBasedServices.count + this.urlBasedServiceResults.count
   }
 
   @ToString

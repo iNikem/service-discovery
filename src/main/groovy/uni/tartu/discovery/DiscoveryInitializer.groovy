@@ -2,7 +2,7 @@ package uni.tartu.discovery
 
 import groovy.util.logging.Slf4j
 import uni.tartu.configuration.Configuration
-import uni.tartu.utils.ReflectionUtils
+import uni.tartu.discovery.providers.DiscoverUrlServices
 
 /**
  * author: lkokhreidze
@@ -15,8 +15,6 @@ import uni.tartu.utils.ReflectionUtils
 @Slf4j
 public class DiscoveryInitializer {
 	private static DiscoveryInitializer INITIALIZER_INSTANCE
-	private Map<DiscoveryType, DiscoveryProcessor> discoveryProviders = [:]
-	private final static String PACKAGE_BASE = "uni.tartu.discovery.providers"
 
 	static {
 		INITIALIZER_INSTANCE = new DiscoveryInitializer()
@@ -30,11 +28,9 @@ public class DiscoveryInitializer {
 		return INITIALIZER_INSTANCE
 	}
 
-	public Map<DiscoveryType, DiscoveryProcessor> loadProviders(List<String> records, Configuration configuration) {
-		ReflectionUtils.scan(PACKAGE_BASE, DiscoveryProvider.class).each { DiscoveryProcessor processor ->
-			processor.init(records, configuration)
-			discoveryProviders[(processor.getType())] = processor
-		}
-		discoveryProviders
+  public static DiscoveryProcessor loadProvider(List<String> records, Configuration configuration) {
+    def processor = new DiscoverUrlServices()
+    processor.init(records, configuration)
+    processor
 	}
 }

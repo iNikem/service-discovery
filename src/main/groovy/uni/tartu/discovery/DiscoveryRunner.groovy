@@ -1,10 +1,9 @@
 package uni.tartu.discovery
 
 import groovy.util.logging.Slf4j
+import java.security.SecureRandom
 import uni.tartu.configuration.Configuration
 import uni.tartu.storage.ResultSetWithStats
-
-import java.security.SecureRandom
 
 import static uni.tartu.parser.Parser.parse
 
@@ -26,7 +25,7 @@ class DiscoveryRunner {
 		return doProcess(cleanedData, configuration)
 	}
 
-	public ResultSetWithStats discover(File csvFile) {
+	public static ResultSetWithStats discover(File csvFile) {
 		if (!csvFile.exists()) {
 			throw new IOException("csv file doesn't exist!")
 		}
@@ -40,7 +39,7 @@ class DiscoveryRunner {
 		try {
 			log.info("started service discovery process. go now and pray!")
 			def initializer = DiscoveryInitializer.getInitializerInstance()
-			def discovery = new Discovery(initializer.loadProviders(data, configuration))
+			def discovery = new Discovery(initializer.loadProvider(data, configuration))
 			return discovery.discover()
 		} catch (Exception e) {
 			log.error("failed to analyze", e)

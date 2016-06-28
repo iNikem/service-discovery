@@ -1,7 +1,6 @@
 package uni.tartu.discovery
 
 import groovy.util.logging.Slf4j
-import uni.tartu.storage.IntermediateResultSet
 import uni.tartu.storage.ResultSetWithStats
 
 /**
@@ -12,16 +11,14 @@ import uni.tartu.storage.ResultSetWithStats
 
 @Slf4j
 class Discovery {
-	private final Map<DiscoveryType, DiscoveryProcessor> discoveryProviders
+	private final DiscoveryProcessor discoveryProvider
 
-	Discovery(Map<DiscoveryType, DiscoveryProcessor> discoveryProviders) {
-		this.discoveryProviders = discoveryProviders
+	Discovery(DiscoveryProcessor discoveryProvider) {
+		this.discoveryProvider = discoveryProvider
 	}
 
 	ResultSetWithStats discover() {
-		def resultSet = discoveryProviders.collectEntries {
-			[(it.key): it.value.tokenize().analyze().reduce()]
-		} as Map<DiscoveryType, IntermediateResultSet>
+		def resultSet = discoveryProvider.tokenize().analyze().reduce()
 		log.info("got intermediate results, building result set. my work here is done!")
 		new ResultSetWithStats(resultSet)
 	}
