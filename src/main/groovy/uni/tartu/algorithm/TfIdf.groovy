@@ -8,7 +8,6 @@ import uni.tartu.utils.ThreadLocalStopWatch
 
 import static uni.tartu.algorithm.MiniMapReduce.Mapper
 import static uni.tartu.algorithm.MiniMapReduce.Reducer
-import static uni.tartu.algorithm.MiniMapReduce.getUrlIdHolders
 
 /**
  * author: lkokhreidze
@@ -37,9 +36,9 @@ class TfIdf {
   private Map<String, AnalyzedUrlData> calculateTfIdf(Map data, long D, Configuration configuration) {
     log.info("started calculating TF-IDF score")
     ThreadLocalStopWatch.get().start('calculateTfIdf')
-    def parameterThreshold = configuration.getParameterThreshold()
+    double parameterThreshold = configuration.getParameterThreshold()
     def importanceThreshold = configuration.getImportanceThreshold()
-    def wordIdHolder = getUrlIdHolders()
+    def wordIdHolder = MiniMapReduce.getUrlIdHolders()
     data.each { k, v ->
       def parts = (v as String).split(";"),
           n = parts[0] as int,
@@ -47,7 +46,7 @@ class TfIdf {
           m = parts[2] as int
       double tfIdf = ((n / N) as double) * Math.log((D / m) as double)
       if (D < m) {
-        log.warn("something shitty happening, shouldn't get negative log")
+        log.warn("something shitty happening, should't get negative log")
       }
       def ids = (k as String).split(";")
       def urlPart = ids[0]
@@ -55,19 +54,16 @@ class TfIdf {
       wordIdHolder.get(urlPart).each {
         def holder = it as UrlInfoData
         def urlId = holder.urlId
-        if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
-          analyzedUrls.get(holder.originalUrl).dynamicPartsToReplace.add(urlPart)
-        } else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= parameterThreshold) {
-          def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
-          analyzedUrl.staticParts = [urlPart]
+
+        def analyzedUrl = analyzedUrls.get(holder.originalUrl)
+        if (analyzedUrl == null) {
+          analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
           analyzedUrls.put(holder.originalUrl, analyzedUrl)
         }
-        if (analyzedUrls.containsKey(holder.originalUrl) && tfIdf <= parameterThreshold) {
-          analyzedUrls.get(holder.originalUrl).staticParts.add(urlPart)
-        } else if (!analyzedUrls.containsKey(holder.originalUrl) && tfIdf > parameterThreshold) {
-          def analyzedUrl = new AnalyzedUrlData(accountId: id, score: tfIdf, urlId: urlId, originalUrl: holder.originalUrl)
-          analyzedUrl.dynamicPartsToReplace = [urlPart]
-          analyzedUrls.put(holder.originalUrl, analyzedUrl)
+        if (tfIdf > parameterThreshold) {
+          analyzedUrl.dynamicPartsToReplace.add(urlPart)
+        } else {
+          analyzedUrl.staticParts.add(urlPart)
         }
       }
     }
