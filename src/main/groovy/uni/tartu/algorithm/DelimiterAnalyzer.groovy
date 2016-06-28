@@ -23,8 +23,7 @@ class DelimiterAnalyzer {
 	private static final float DELIMITER_CONFIDENCE_THRESHOLD = 90.0
 	private final Map<String, String> analyzedDelimiters = new LinkedHashMap<String, String>()
 	private Map<?, ?> initialGrouping
-	private final def knownDelimiters = [dot  : '.',
-													 slash: '/']
+	private final def knownDelimiters = [dot: '.', slash: '/']
 
 	private DelimiterAnalyzer() {}
 
