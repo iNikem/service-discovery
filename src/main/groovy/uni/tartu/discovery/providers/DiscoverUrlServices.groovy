@@ -2,6 +2,7 @@ package uni.tartu.discovery.providers
 
 import groovy.util.logging.Slf4j
 import uni.tartu.algorithm.DelimiterAnalyzer
+import uni.tartu.algorithm.MiniMapReduce
 import uni.tartu.algorithm.ServiceGrouping
 import uni.tartu.algorithm.TfIdf
 import uni.tartu.algorithm.UrlReducer
@@ -14,8 +15,6 @@ import uni.tartu.storage.IntermediateResultSet
 import uni.tartu.storage.RawUrlData
 import uni.tartu.storage.UrlInfoData
 
-import static uni.tartu.algorithm.MiniMapReduce.put
-import static uni.tartu.algorithm.MiniMapReduce.putUrlIdHolder
 import static uni.tartu.algorithm.TfIdf.Step
 import static uni.tartu.utils.StringUtils.clean
 import static uni.tartu.utils.StringUtils.getKey
@@ -44,73 +43,77 @@ class DiscoverUrlServices implements DiscoveryProcessor {
   DiscoveryProcessor analyze() {
     log.info("started analyzing phase for URL discovery")
     TfIdf tfIdf = new TfIdf(
-        /**
-         * first MapReduce job closure specification
-         **/
-        new Step({ k, v ->
-          v.collect { i ->
-            i.collect { j ->
-              "${k};${j}".toString()
-            }
-          }.flatten().each {
-            def parts = split(it as String, ";")
-            if (parts.size() >= 2) {
-              def idPart = parts[0],
-                  valuePart = parts[1]
-              def keys = getKey(valuePart)
-              if (keys) {
-                def urlPart = keys[0],
-                    urlId = keys[1] as int
-                def newKey = "${urlPart};${idPart}".toString()
-                populate(newKey, urlPart, urlId, originalServices.get(urlId).rawUrl)
-              }
-            }
-          }
-        }, { map, k, v ->
-          map << [(k): v.sum(0)]
-        }),
-        /**
-         * second MapReduce job closure specification
-         **/
-        new Step({ k, v ->
-          def arr = (k as String).split(";")
-          arr.length < 2 ?: put(arr[0], "${arr[1]};${v}".toString())
-        }, { map, k, v ->
-          int N = v.sum {
-            (it as String).split(";")[1] as int
-          }
-          v.flatten().each {
-            def parts = (it as String).split(";"),
-                key = "${k};${parts[0]}",
-                val = "${parts[1]};$N"
-            map << [(key): (val)]
-          }
-          map
-        }),
-        /**
-         * third MapReduce job closure specification
-         **/
-        new Step({ k, v ->
-          def parts = (k as String).split(";"),
-              id = parts[1],
-              urlPart = parts[0] ?: 'null'
-          put((urlPart), ("$id;${v};1"))
-        }, { map, k, v ->
-          def m = v.sum {
-            (it as String).split(";")[3] as int
-          }
-          v.flatten().each {
-            def parts = (it as String).split(";"),
-                key = "${k};${parts[0]}" as String,
-                val = "${parts[1]};${parts[2]};$m" as String
-            map << [(key): (val)]
-          }
-          map
-        }))
+        new Step(this.&firstStepMap, this.&firstStepReduce),
+        new Step(this.&secondStepMap, this.&secondStepReduce),
+        new Step(this.&thirdStepMap, this.&thirdStepReduce))
+
     def D = this.grouped.size()
     this.scores = tfIdf.calculate(grouped, D, configuration)
     log.info("got TF-IDF scores with size: {}", scores.size())
     this
+  }
+
+  protected Map thirdStepReduce(map, k, v) {
+    def m = v.sum {
+      (it as String).split(";")[3] as int
+    }
+    v.flatten().each {
+      def parts = (it as String).split(";"),
+          key = "${k};${parts[0]}" as String,
+          val = "${parts[1]};${parts[2]};$m" as String
+      map << [(key): (val)]
+    }
+    map
+  }
+
+  protected void thirdStepMap(k, v) {
+    def parts = (k as String).split(";"),
+        id = parts[1],
+        urlPart = parts[0] ?: 'null'
+    MiniMapReduce.put((urlPart), ("$id;${v};1"))
+  }
+
+  protected Map secondStepReduce(map, k, v) {
+    int N = v.sum {
+      (it as String).split(";")[1] as int
+    }
+    v.flatten().each {
+      def parts = (it as String).split(";"),
+          key = "${k};${parts[0]}",
+          val = "${parts[1]};$N"
+      map << [(key): (val)]
+    }
+    map
+  }
+
+  protected Boolean secondStepMap(k, v) {
+    def arr = (k as String).split(";")
+    arr.length < 2 ?: MiniMapReduce.put(arr[0], "${arr[1]};${v}".toString()) //WTF?
+  }
+
+  protected Map firstStepReduce(map, k, v) {
+    map << [(k): v.sum(0)]
+  }
+
+  protected List<?> firstStepMap(k, v) {
+    v.collect { i ->
+      i.collect { j ->
+        "${k};${j}".toString()
+      }
+    }.flatten().each {
+      def parts = split(it as String, ";")
+      if (parts.size() >= 2) {
+        def idPart = parts[0],
+            valuePart = parts[1]
+        def keys = getKey(valuePart)
+        if (keys) {
+          def urlPart = keys[0],
+              urlId = keys[1] as int
+          String newKey = "${urlPart};${idPart}".toString()
+          populate(newKey, urlPart, urlId, originalServices.get(urlId).rawUrl)
+        }
+      }
+    }
   }
 
   @Override
@@ -179,7 +182,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
   }
 
   private static void populate(String newKey, String urlPart, int urlId, String originalUrl) {
-    putUrlIdHolder(new UrlInfoData(urlPart, urlId, originalUrl))
-    put((newKey), 1)
+    MiniMapReduce.putUrlIdHolder(new UrlInfoData(urlPart, urlId, originalUrl))
+    MiniMapReduce.put(newKey, 1)
   }
 }
