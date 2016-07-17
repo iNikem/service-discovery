@@ -12,60 +12,60 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+  mavenCentral()
 }
 
 configurations {
-	jetty
-	distribution
-	releaseJars
+  jetty
+  distribution
+  releaseJars
 }
 
 buildscript {
-	repositories {
-		jcenter()
-		maven {
-			url "http://repo.spring.io/milestone"
-		}
-	}
-	dependencies {
-		classpath "org.springframework.boot:spring-boot-gradle-plugin:1.3.2.RELEASE"
-	}
+  repositories {
+    jcenter()
+    maven {
+      url "http://repo.spring.io/milestone"
+    }
+  }
+  dependencies {
+    classpath "org.springframework.boot:spring-boot-gradle-plugin:1.3.2.RELEASE"
+  }
 }
 
 dependencies {
-	compile "org.codehaus.groovy:groovy-all:${libs.groovy}"
-	compile "org.reflections:reflections:0.9.10"
-	compile("org.springframework.boot:spring-boot-starter-web") {
-		/* is needed to resolve conflict between jetty and tomcat logging.
-		 * tomcat is included in spring boot by default */
-		exclude module: 'spring-boot-starter-tomcat'
-	}
-	compile 'org.springframework.boot:spring-boot-starter-jetty:1.3.2.RELEASE'
-	testCompile group: 'junit', name: 'junit', version: libs.junit
-	releaseJars "org.reflections:reflections:0.9.10"
+  compile "org.codehaus.groovy:groovy-all:${libs.groovy}"
+  compile "org.reflections:reflections:0.9.10"
+  compile("org.springframework.boot:spring-boot-starter-web") {
+    /* is needed to resolve conflict between jetty and tomcat logging.
+     * tomcat is included in spring boot by default */
+    exclude module: 'spring-boot-starter-tomcat'
+  }
+  compile 'org.springframework.boot:spring-boot-starter-jetty:1.3.2.RELEASE'
+  testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+  releaseJars "org.reflections:reflections:0.9.10"
 }
 
 task run(dependsOn: 'classes', type: JavaExec) {
-	main = 'uni.tartu.Main'
-	classpath = sourceSets.main.runtimeClasspath
+  main = 'uni.tartu.Main'
+  classpath = sourceSets.main.runtimeClasspath
 }
 
 //create a single Jar with only required dependencies
 task jarjarBinks(type: Jar) {
-	manifest {
-		attributes(
-			'Implementation-Title': 'Service Discovery',
-			'Implementation-Version': '2.2',
-			'Class-Path': 'service-discovery-all-2.2.jar'
-		)
-	}
-	baseName = project.name + '-all'
-	from configurations.releaseJars.collect { it.isDirectory() ? it : zipTree(it) }
-	exclude '**/web/**'
-	exclude '**/Application*'
-	exclude '**/Main*'
-	exclude '**/*.csv'
-	exclude '**/*.properties'
-	with jar
+  manifest {
+    attributes(
+        'Implementation-Title': 'Service Discovery',
+        'Implementation-Version': '2.2',
+        'Class-Path': 'service-discovery-all-2.2.jar'
+    )
+  }
+  baseName = project.name + '-all'
+  from configurations.releaseJars.collect { it.isDirectory() ? it : zipTree(it) }
+  exclude '**/web/**'
+  exclude '**/Application*'
+  exclude '**/Main*'
+  exclude '**/*.csv'
+  exclude '**/*.properties'
+  with jar
 }
