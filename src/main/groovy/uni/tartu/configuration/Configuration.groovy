@@ -14,7 +14,7 @@ public class Configuration extends AbstractConfiguration {
 	private double parameterThreshold
 	private double importanceThreshold
 	private String filters
-	private int maxGroupSize
+	private int documentSize
 
 	Configuration() {
 		configure()
@@ -53,13 +53,13 @@ public class Configuration extends AbstractConfiguration {
 		this.filters = filters
 	}
 
-	public int getMaxGroupSize() {
-		return maxGroupSize
+	public int getDocumentSize() {
+		return documentSize
 	}
 
-	@Property(value = "discovery.maxGroupSize")
-	public void setMaxGroupSize(int maxGroupSize) {
-		this.maxGroupSize = maxGroupSize > 0 ? maxGroupSize : 1000
+	@Property(value = "discovery.documentSize")
+	public void setDocumentSize(int documentSize) {
+		this.documentSize = documentSize > 0 ? documentSize : 1000
 	}
 
 }

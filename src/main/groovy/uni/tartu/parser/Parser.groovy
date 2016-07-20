@@ -55,9 +55,10 @@ class Parser {
   }
 
   private static List<String> checkValidity(def records, Configuration configuration) {
-    if (records.size() < configuration.getMaxGroupSize()) {
-      throw new RuntimeException("records size (after cleaning): ${records.size()} can't be less that maxGroupingSize: ${configuration.getMaxGroupSize()}. " +
-          "If you haven't specified discovery.maxGroupSize property than default value of 1000 will be used")
+    if (records.size() < configuration.getDocumentSize()) {
+      //TODO This class should not have any knowledge about default size
+      throw new RuntimeException("records size (after cleaning): ${records.size()} can't be less that documentSize: ${configuration.getDocumentSize()}. " +
+          "If you haven't specified discovery.documentSize property than default value of 1000 will be used")
     }
     return records
   }

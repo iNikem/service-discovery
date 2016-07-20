@@ -155,7 +155,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
   void init(List<String> services, Configuration configuration) {
     log.info("started initialisation phase for URL discovery")
     this.configuration = configuration
-    def documentSelector = new DocumentIdSelector(services.size(), configuration.getMaxGroupSize())
+    def documentSelector = new DocumentIdSelector(services.size(), configuration.getDocumentSize())
     services.findAll { it.split(';')[1].startsWith("/") }.eachWithIndex { url, i ->
       def documentId = documentSelector.nextDocumentToUse()
       def cleaned = clean(url)
