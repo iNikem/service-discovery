@@ -165,7 +165,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
         if (!currentProcessId) {
           currentProcessId = id
         }
-        originalServices.put(i, new RawUrlData(id: id, rawUrl: parts[1], urlId: i, collectionId: documentId))
+        originalServices.put(i, new RawUrlData(id: id, rawUrl: parts[1], urlId: i, documentId: documentId))
       }
     }
     delimiterAnalyzer.build(originalServices.values().toList())

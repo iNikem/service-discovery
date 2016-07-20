@@ -50,7 +50,7 @@ class DelimiterAnalyzer {
 
 	public void build(List<RawUrlData> services) {
 		initialGrouping = services
-			.groupBy { "${it.id}__${it.collectionId}".toString() }
+				.groupBy { "${it.id}__${it.documentId}".toString() }
 			.collectEntries { k, v -> [(k): v.collect { "${it.rawUrl}__${it.urlId}" }] }
 		analyze()
 	}

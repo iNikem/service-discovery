@@ -11,7 +11,7 @@ class RawUrlData {
 	public String id
 	public int urlId
 	public String rawUrl
-	public int collectionId
+	public int documentId
 
 	@Override
 	public String toString() {
