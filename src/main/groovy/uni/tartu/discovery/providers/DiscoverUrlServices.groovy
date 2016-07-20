@@ -2,8 +2,8 @@ package uni.tartu.discovery.providers
 
 import groovy.util.logging.Slf4j
 import uni.tartu.algorithm.DelimiterAnalyzer
+import uni.tartu.algorithm.DocumentIdSelector
 import uni.tartu.algorithm.MiniMapReduce
-import uni.tartu.algorithm.ServiceGrouping
 import uni.tartu.algorithm.TfIdf
 import uni.tartu.algorithm.UrlReducer
 import uni.tartu.configuration.Configuration
@@ -129,8 +129,8 @@ class DiscoverUrlServices implements DiscoveryProcessor {
   @Override
   DiscoveryProcessor tokenize() {
     log.info("started grouping phase for URL discovery")
-    this.grouped = initialGroups.collectEntries { k, v ->
-      def result = v.collect { url ->
+    this.grouped = initialGroups.collectEntries { String k, List<String> v ->
+      def result = v.collect { String url ->
         def parts = getKey(url)
         def urlId = parts[1]
         split(url, delimiterAnalyzer.getDelimiter(k)).collect { part ->
@@ -155,9 +155,9 @@ class DiscoverUrlServices implements DiscoveryProcessor {
   void init(List<String> services, Configuration configuration) {
     log.info("started initialisation phase for URL discovery")
     this.configuration = configuration
-    def serviceGrouping = new ServiceGrouping(services.size(), configuration.getMaxGroupSize())
+    def documentSelector = new DocumentIdSelector(services.size(), configuration.getMaxGroupSize())
     services.findAll { it.split(';')[1].startsWith("/") }.eachWithIndex { url, i ->
-      def collectionId = serviceGrouping.generateGroupingId()
+      def documentId = documentSelector.nextDocumentToUse()
       def cleaned = clean(url)
       def parts = cleaned.split(';')
       if (parts.size() > 1) {
@@ -165,7 +165,7 @@ class DiscoverUrlServices implements DiscoveryProcessor {
         if (!currentProcessId) {
           currentProcessId = id
         }
-        originalServices.put(i, new RawUrlData(id: id, rawUrl: parts[1], urlId: i, collectionId: collectionId))
+        originalServices.put(i, new RawUrlData(id: id, rawUrl: parts[1], urlId: i, collectionId: documentId))
       }
     }
     delimiterAnalyzer.build(originalServices.values().toList())
